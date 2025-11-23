@@ -3,6 +3,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyBtf--tWrqRVItAGJGQ6hEk81iggP4I-SU",
     authDomain: "my-humber-project-319815.firebaseapp.com",
+    databaseURL: "https://my-humber-project-319815-default-rtdb.firebaseio.com/",
     projectId: "my-humber-project-319815",
     storageBucket: "my-humber-project-319815.firebasestorage.app",
     messagingSenderId: "110994378936",
