@@ -1,13 +1,13 @@
 //Firebase Configuration
 // Replace the values below with your own Firebase project configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyBtf--tWrqRVItAGJGQ6hEk81iggP4I-SU",
-    authDomain: "my-humber-project-319815.firebaseapp.com",
+    apiKey: "AIzaSyB-OF20-y3acOGvG7CB-BBcsR7bLvKO8x4",
+    authDomain: "mi-web-5402c.firebaseapp.com",
     databaseURL: "https://my-humber-project-319815-default-rtdb.firebaseio.com/",
-    projectId: "my-humber-project-319815",
-    storageBucket: "my-humber-project-319815.firebasestorage.app",
-    messagingSenderId: "110994378936",
-    appId: "Y1:110994378936:web:60b20c16ce5f40b47e644d"
+    projectId: "mi-web-5402c",
+    storageBucket: "mi-web-5402c.appspot.com",
+    messagingSenderId: "31272724190",
+    appId: "1:31272724190:web:21cd859cad4d3a4b83844f"
 };
 
 // Initialize Firebase (will be done in script.js if config is valid)
