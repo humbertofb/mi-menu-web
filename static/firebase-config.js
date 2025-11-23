@@ -3,7 +3,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyB-OF20-y3acOGvG7CB-BBcsR7bLvKO8x4",
     authDomain: "mi-web-5402c.firebaseapp.com",
-    databaseURL: "https://my-humber-project-319815-default-rtdb.firebaseio.com/",
+    databaseURL: "https://mi-web-5402c-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "mi-web-5402c",
     storageBucket: "mi-web-5402c.appspot.com",
     messagingSenderId: "31272724190",
