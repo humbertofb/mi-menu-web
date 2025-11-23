@@ -1,4 +1,4 @@
-Firebase Configuration
+//Firebase Configuration
 // Replace the values below with your own Firebase project configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBtf--tWrqRVItAGJGQ6hEk81iggP4I-SU",
