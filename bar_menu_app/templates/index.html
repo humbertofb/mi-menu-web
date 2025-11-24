@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Menú - Casa de Andalucía</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+        rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+
+<body>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Casa de Andalucía</h1>
+                <p class="subtitle">Calculadora de Menús</p>
+            </div>
+        </header>
+
+        <main>
+            <div class="main-grid">
+                <!-- Left Column: Menu Selection -->
+                <div class="menu-column">
+
+                    <!-- Fixed Product: Pan -->
+                    <section class="category-section fixed-items">
+                        <div class="product-card fixed-product" data-id="pan-fixed">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="prod-pan" value="pan" checked disabled>
+                                <label for="prod-pan">
+                                    <span class="prod-name">Pan (Fijo)</span>
+                                    <span class="prod-price">2.40€</span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="category-section" id="cat-primeros">
+                        <div class="section-header">
+                            <h2><span class="icon">🥗</span> Primeros Platos</h2>
+                            <div class="sort-controls">
+                                <label>Ordenar por:</label>
+                                <select id="sort-products" class="sort-select">
+                                    <option value="default">Por defecto</option>
+                                    <option value="name">Nombre (A-Z)</option>
+                                    <option value="price">Precio</option>
+                                    <option value="usage">Más usados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="products-grid" id="container-primeros">
+                            <!-- Products will be injected here -->
+                        </div>
+                    </section>
+
+                    <section class="category-section" id="cat-segundos">
+                        <h2><span class="icon">🍖</span> Segundos Platos</h2>
+                        <div class="products-grid" id="container-segundos">
+                            <!-- Products will be injected here -->
+                        </div>
+                    </section>
+
+                    <section class="category-section" id="cat-postres">
+                        <h2><span class="icon">🍰</span> Postres</h2>
+                        <div class="products-grid" id="container-postres">
+                            <!-- Products will be injected here -->
+                        </div>
+                    </section>
+
+                    <section class="add-product-section">
+                        <h3>Agregar Nuevo Producto</h3>
+                        <form id="add-product-form">
+                            <div class="form-group">
+                                <input type="text" id="new-prod-name" placeholder="Nombre del plato" required>
+                            </div>
+                            <div class="form-row">
+                                <input type="number" id="new-prod-price" placeholder="Precio (€)" step="0.01" min="0"
+                                    required>
+                                <select id="new-prod-category">
+                                    <option value="primeros">Primeros</option>
+                                    <option value="segundos" selected>Segundos</option>
+                                    <option value="postres">Postres</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-add">Agregar Producto</button>
+                        </form>
+                    </section>
+                </div>
+
+                <!-- Right Column: Summary & History -->
+                <div class="sidebar-column">
+                    <div class="sticky-sidebar">
+                        <section class="summary-card">
+                            <h2>Resumen de la Cuenta</h2>
+                            <div class="summary-details">
+                                <div class="summary-row">
+                                    <span>Comida:</span>
+                                    <span id="sum-food">0.00€</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Bebida (4 pers.):</span>
+                                    <span id="sum-drinks">30.00€</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Pan (Fijo):</span>
+                                    <span id="sum-pan">2.40€</span>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="summary-row total">
+                                    <span>Total:</span>
+                                    <span id="sum-total">32.40€</span>
+                                </div>
+                                <div class="summary-row per-person">
+                                    <span>Por persona (4):</span>
+                                    <span id="sum-per-person">8.10€</span>
+                                </div>
+                            </div>
+
+                            <div class="menu-actions">
+                                <input type="text" id="menu-name-input" placeholder="Nombre del menú (ej. Mesa 1)"
+                                    class="menu-name-input">
+                                <div class="action-buttons">
+                                    <button id="save-pending-btn" class="btn-secondary">Guardar Pendiente</button>
+                                    <button id="save-menu-btn" class="btn-primary">Finalizar y Guardar</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="pending-section" id="pending-section" style="display: none;">
+                            <h3>Menús Pendientes</h3>
+                            <div id="pending-list" class="history-list">
+                                <!-- Pending items will be injected here -->
+                            </div>
+                        </section>
+
+                        <section class="history-section">
+                            <h3>Historial de Menús</h3>
+                            <div id="history-list" class="history-list">
+                                <!-- History items will be injected here -->
+                                <p class="empty-msg">No hay menús guardados.</p>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>Editar Producto</h3>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit-prod-id">
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" id="edit-prod-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio (€):</label>
+                    <input type="number" id="edit-prod-price" step="0.01" min="0" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="delete-prod-btn" class="btn-danger">Eliminar</button>
+                    <button type="submit" class="btn-save">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="static/firebase-config.js"></script>
+    <script src="static/script.js"></script>
+</body>
+
+</html>
