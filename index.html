@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bar Menú - Casa de Andalucía</title>
+    <title>Casa de Andalucía - Gestión de Menús</title>
     <link rel="stylesheet" href="static/style.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
         rel="stylesheet">
 
     <!-- Firebase SDKs -->
@@ -16,136 +16,183 @@
 </head>
 
 <body>
-    <div class="background-overlay"></div>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <h1>Casa de Andalucía</h1>
-                <p class="subtitle">Calculadora de Menús</p>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <nav class="sidebar">
+            <div class="brand">
+                <h1>Casa de<br>Andalucía</h1>
+                <p>Gestión de Menús</p>
             </div>
-        </header>
 
-        <main>
-            <div class="main-grid">
-                <!-- Left Column: Menu Selection -->
-                <div class="menu-column">
+            <ul class="nav-links">
+                <li class="active" data-view="view-main-menu">
+                    <span class="icon">🍽️</span> Menú Principal
+                </li>
+                <li data-view="view-pending">
+                    <span class="icon">⏳</span> Menús Pendientes
+                </li>
+                <li data-view="view-history">
+                    <span class="icon">📜</span> Historial
+                </li>
+            </ul>
 
-                    <!-- Fixed Product: Pan -->
-                    <section class="category-section fixed-items">
-                        <div class="product-card fixed-product" data-id="pan-fixed">
-                            <div class="checkbox-wrapper">
-                                <input type="checkbox" id="prod-pan" value="pan" checked disabled>
-                                <label for="prod-pan">
-                                    <span class="prod-name">Pan (Fijo)</span>
-                                    <span class="prod-price">2.40€</span>
-                                </label>
-                            </div>
+            <div class="nav-footer">
+                <div class="andalusian-pattern"></div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- VIEW: MAIN MENU (Product Selection) -->
+            <div id="view-main-menu" class="view-section active">
+                <header class="view-header">
+                    <h2>Nuevo Menú</h2>
+                    <div class="header-actions">
+                        <div class="sort-control">
+                            <label>Ordenar por:</label>
+                            <select id="sort-products">
+                                <option value="name">Alfabético (A-Z)</option>
+                                <option value="price-asc">Precio (Menor a Mayor)</option>
+                                <option value="price-desc">Precio (Mayor a Menor)</option>
+                                <option value="popularity">Más Usados</option>
+                            </select>
                         </div>
-                    </section>
+                    </div>
+                </header>
 
-                    <section class="category-section" id="cat-primeros">
-                        <h2><span class="icon">🥗</span> Primeros Platos</h2>
-                        <div class="products-grid" id="container-primeros">
-                            <!-- Products will be injected here -->
-                        </div>
-                    </section>
+                <div class="menu-workspace">
+                    <!-- Product List Column -->
+                    <div class="products-column">
 
-                    <section class="category-section" id="cat-segundos">
-                        <h2><span class="icon">🍖</span> Segundos Platos</h2>
-                        <div class="products-grid" id="container-segundos">
-                            <!-- Products will be injected here -->
-                        </div>
-                    </section>
-
-                    <section class="category-section" id="cat-postres">
-                        <h2><span class="icon">🍰</span> Postres</h2>
-                        <div class="products-grid" id="container-postres">
-                            <!-- Products will be injected here -->
-                        </div>
-                    </section>
-
-                    <section class="add-product-section">
-                        <h3>Agregar Nuevo Producto</h3>
-                        <form id="add-product-form">
-                            <div class="form-group">
-                                <input type="text" id="new-prod-name" placeholder="Nombre del plato" required>
+                        <!-- Category: Primeros -->
+                        <section class="category-group">
+                            <div class="cat-header">
+                                <h3><span class="cat-icon">🥗</span> Primeros Platos</h3>
+                                <button class="btn-icon-small add-prod-btn" data-cat="primeros"
+                                    title="Añadir plato">+</button>
                             </div>
-                            <div class="form-row">
-                                <input type="number" id="new-prod-price" placeholder="Precio (€)" step="0.01" min="0"
-                                    required>
-                                <select id="new-prod-category">
-                                    <option value="primeros">Primeros</option>
-                                    <option value="segundos" selected>Segundos</option>
-                                    <option value="postres">Postres</option>
-                                </select>
+                            <div class="products-grid" id="container-primeros">
+                                <!-- Products injected here -->
                             </div>
-                            <button type="submit" class="btn-add">Agregar Producto</button>
-                        </form>
-                    </section>
-                </div>
-
-                <!-- Right Column: Summary & History -->
-                <div class="sidebar-column">
-                    <div class="sticky-sidebar">
-                        <section class="summary-card">
-                            <h2>Resumen de la Cuenta</h2>
-                            <div class="summary-details">
-                                <div class="summary-row">
-                                    <span>Comida:</span>
-                                    <span id="sum-food">0.00€</span>
-                                </div>
-                                <div class="summary-row">
-                                    <span>Bebida (4 pers.):</span>
-                                    <span id="sum-drinks">30.00€</span>
-                                </div>
-                                <div class="summary-row">
-                                    <span>Pan (Fijo):</span>
-                                    <span id="sum-pan">2.40€</span>
-                                </div>
-                                <div class="divider"></div>
-                                <div class="summary-row total">
-                                    <span>Total:</span>
-                                    <span id="sum-total">32.40€</span>
-                                </div>
-                                <div class="summary-row per-person">
-                                    <span>Por persona (4):</span>
-                                    <span id="sum-per-person">8.10€</span>
-                                </div>
-                            </div>
-                            <button id="save-menu-btn" class="btn-primary">Guardar Menú en Historial</button>
                         </section>
 
-                        <section class="history-section">
-                            <h3>Historial de Menús</h3>
-                            <div id="history-list" class="history-list">
-                                <!-- History items will be injected here -->
-                                <p class="empty-msg">No hay menús guardados.</p>
+                        <!-- Category: Segundos -->
+                        <section class="category-group">
+                            <div class="cat-header">
+                                <h3><span class="cat-icon">🍖</span> Segundos Platos</h3>
+                                <button class="btn-icon-small add-prod-btn" data-cat="segundos"
+                                    title="Añadir plato">+</button>
+                            </div>
+                            <div class="products-grid" id="container-segundos">
+                                <!-- Products injected here -->
+                            </div>
+                        </section>
+
+                        <!-- Category: Postres -->
+                        <section class="category-group">
+                            <div class="cat-header">
+                                <h3><span class="cat-icon">🍰</span> Postres</h3>
+                                <button class="btn-icon-small add-prod-btn" data-cat="postres"
+                                    title="Añadir plato">+</button>
+                            </div>
+                            <div class="products-grid" id="container-postres">
+                                <!-- Products injected here -->
                             </div>
                         </section>
                     </div>
+
+                    <!-- Calculation Panel (Sticky) -->
+                    <div class="calculation-panel">
+                        <div class="panel-card">
+                            <h3>Resumen Actual</h3>
+
+                            <div class="calc-details">
+                                <div class="calc-row">
+                                    <span>Comida Seleccionada:</span>
+                                    <span id="calc-food">0.00€</span>
+                                </div>
+                                <div class="calc-row fixed-item" title="7.50€ x 4 personas">
+                                    <span>Bebida (4 pers.):</span>
+                                    <span id="calc-drinks">30.00€</span>
+                                </div>
+                                <div class="calc-row fixed-item" title="Precio fijo">
+                                    <span>Pan:</span>
+                                    <span id="calc-pan">2.40€</span>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="calc-row total">
+                                    <span>Total:</span>
+                                    <span id="calc-total">32.40€</span>
+                                </div>
+                                <div class="calc-row per-person">
+                                    <span>Por persona (4):</span>
+                                    <span id="calc-per-person">8.10€</span>
+                                </div>
+                            </div>
+
+                            <div class="panel-actions">
+                                <input type="text" id="menu-name-input" placeholder="Nombre (ej: Mesa 4)"
+                                    class="input-full">
+                                <button id="btn-save-pending" class="btn-secondary">Guardar en Pendientes</button>
+                                <button id="btn-finalize" class="btn-primary">Finalizar y Guardar</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- VIEW: PENDING MENUS -->
+            <div id="view-pending" class="view-section">
+                <header class="view-header">
+                    <h2>Menús Pendientes</h2>
+                </header>
+                <div class="pending-grid" id="pending-container">
+                    <!-- Pending items injected here -->
+                    <p class="empty-state">No hay menús pendientes.</p>
+                </div>
+            </div>
+
+            <!-- VIEW: HISTORY -->
+            <div id="view-history" class="view-section">
+                <header class="view-header">
+                    <h2>Historial de Menús</h2>
+                </header>
+                <div class="history-list" id="history-container">
+                    <!-- History items injected here -->
+                    <p class="empty-state">No hay historial disponible.</p>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="modal hidden">
+    <!-- Modal: Add/Edit Product -->
+    <div id="product-modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h3>Editar Producto</h3>
-            <form id="edit-product-form">
-                <input type="hidden" id="edit-prod-id">
+            <span class="close-modal">&times;</span>
+            <h3 id="modal-title">Añadir Producto</h3>
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
                 <div class="form-group">
-                    <label>Nombre:</label>
-                    <input type="text" id="edit-prod-name" required>
+                    <label>Nombre del Plato</label>
+                    <input type="text" id="prod-name" required>
                 </div>
                 <div class="form-group">
-                    <label>Precio (€):</label>
-                    <input type="number" id="edit-prod-price" step="0.01" min="0" required>
+                    <label>Precio (€)</label>
+                    <input type="number" id="prod-price" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="prod-category">
+                        <option value="primeros">Primeros Platos</option>
+                        <option value="segundos">Segundos Platos</option>
+                        <option value="postres">Postres</option>
+                    </select>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" id="delete-prod-btn" class="btn-danger">Eliminar</button>
-                    <button type="submit" class="btn-save">Guardar Cambios</button>
+                    <button type="button" id="btn-delete-prod" class="btn-danger hidden">Eliminar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
                 </div>
             </form>
         </div>
