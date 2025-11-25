@@ -472,12 +472,17 @@ h3 {
 .input-full,
 .input-short {
     width: 100%;
-    padding: 0.8rem;
+    padding: 12px;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-family: inherit;
-    background-color: #f9f9f9;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    background-color: #f8f9fa;
+    color: var(--color-text-dark);
     transition: all 0.2s;
+    -webkit-appearance: none;
+    /* Remove default iOS styling */
+    appearance: none;
 }
 
 .form-group input:focus,
@@ -573,22 +578,24 @@ input[type="datetime-local"] {
     .app-container {
         flex-direction: column;
         height: auto;
+        overflow: visible;
     }
 
     .sidebar {
         width: 100%;
-        padding: 1rem;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
+        padding: 0.8rem 1rem;
         position: sticky;
         top: 0;
         z-index: 100;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
     }
 
     .brand {
-        margin-bottom: 0;
+        margin: 0;
     }
 
     .brand h1 {
@@ -602,13 +609,15 @@ input[type="datetime-local"] {
 
     .nav-links {
         display: flex;
-        gap: 10px;
+        gap: 5px;
         margin: 0;
     }
 
     .nav-links li {
         padding: 0.5rem;
         margin: 0;
+        width: auto;
+        border-radius: 8px;
     }
 
     .nav-links li span:not(.icon) {
@@ -621,25 +630,25 @@ input[type="datetime-local"] {
 
     .main-content {
         padding: 1rem;
+        padding-bottom: 400px;
+        /* Huge padding to ensure scrollability */
         overflow: visible;
     }
 
     .menu-workspace {
         display: flex;
         flex-direction: column;
-        /* Products on top, Summary on bottom (sticky) */
         gap: 1rem;
     }
 
     .products-column {
-        padding-bottom: 320px;
-        /* Extra space for the sticky panel */
+        padding-bottom: 0;
     }
 
+    /* Robust Grid: 2 columns always */
     .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        /* Larger items on mobile */
-        justify-content: center;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
     .product-card {
@@ -647,52 +656,57 @@ input[type="datetime-local"] {
         flex-direction: column;
         justify-content: center;
         text-align: center;
-        height: 100%;
+        min-height: 110px;
+        padding: 0.8rem;
     }
 
     .card-content {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 4px;
     }
 
+    .prod-name {
+        font-size: 0.95rem;
+    }
+
+    .prod-price {
+        font-size: 1.1rem;
+    }
+
+    /* Robust Sticky Panel */
     .calculation-panel {
         position: fixed;
-        bottom: 0 !important;
-        top: auto !important;
+        bottom: 0;
         left: 0;
+        right: 0;
         width: 100%;
         height: auto;
-        max-height: 45vh;
-        z-index: 9999;
-        /* Max visibility */
+        max-height: 50vh;
+        background: #ffffff;
+        z-index: 10000;
+        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.2);
+        border-top: 1px solid #eee;
         margin: 0;
-        border-top: none;
-        box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
-        background: var(--color-white);
-        /* Solid background */
     }
 
     .panel-card {
         border-radius: 20px 20px 0 0;
-        padding: 1.2rem;
-        border-top: none;
-        background: var(--color-white);
+        padding: 1rem;
         box-shadow: none;
-        /* Shadow handled by parent */
+        border: none;
+        background: transparent;
     }
 
-    /* Compact summary for mobile */
     .calc-details {
         margin: 0.5rem 0;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        /* 2 columns */
-        gap: 0.5rem;
-        font-size: 0.8rem;
+        gap: 5px;
+        font-size: 0.85rem;
     }
 
     .calc-row {
-        margin-bottom: 0;
+        margin: 0;
     }
 
     .divider {
@@ -702,31 +716,25 @@ input[type="datetime-local"] {
     .calc-row.total {
         grid-column: span 2;
         text-align: center;
-        margin-top: 0.5rem;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
+        margin-top: 5px;
+        color: var(--color-green-dark);
     }
 
     .panel-actions {
-        flex-direction: row;
-        gap: 0.5rem;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .panel-actions button {
-        flex: 1;
-        padding: 0.6rem;
-        font-size: 0.9rem;
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 1rem;
     }
 
     .input-group-row {
-        display: none;
-        /* Hide inputs on sticky panel to save space, maybe show on expand? */
-        /* Or just show them compact */
-    }
-
-    /* Let's keep inputs but compact */
-    .panel-actions .input-group-row {
         display: flex;
-        width: 100%;
+        gap: 5px;
     }
 }
 
