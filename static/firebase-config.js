@@ -1,13 +1,13 @@
 // Firebase Configuration
 // REEMPLAZA ESTOS VALORES CON LOS DE TU PROYECTO DE FIREBASE
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "tu-proyecto.firebaseapp.com",
-    databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
-    projectId: "tu-proyecto",
-    storageBucket: "tu-proyecto.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:abcdef123456"
+    apiKey: "AIzaSyBtf--tWrqRVItAGJGQ6hEk81iggP4I-SU",
+    authDomain: "my-humber-project-319815.firebaseapp.com",
+    databaseURL: "https://my-humber-project-319815-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "my-humber-project-319815",
+    storageBucket: "my-humber-project-319815.firebasestorage.app",
+    messagingSenderId: "110994378936",
+    appId: "1:110994378936:web:60b20c16ce5f40b47e644d"
 };
 
 // Initialize Firebase
