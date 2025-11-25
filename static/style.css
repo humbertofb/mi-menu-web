@@ -107,6 +107,9 @@ h3 {
     gap: 10px;
     font-weight: 500;
     color: var(--color-text-light);
+    width: 100%;
+    /* Ensure full width */
+    box-sizing: border-box;
 }
 
 .nav-links li:hover {
@@ -530,11 +533,19 @@ h3 {
     position: absolute;
     bottom: 1rem;
     left: 1rem;
-    color: var(--color-danger);
-    background: none;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-danger);
+    color: var(--color-white);
     border: none;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-delete-history:hover {
+    background-color: #c0392b;
 }
 
 /* Responsive */
@@ -605,10 +616,32 @@ h3 {
         /* Space for the sticky panel so last items are visible */
     }
 
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        /* Larger items on mobile */
+        justify-content: center;
+    }
+
+    .product-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+    }
+
+    .card-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
     .calculation-panel {
         position: fixed;
         /* Fixed to viewport */
-        bottom: 0;
+        bottom: 0 !important;
+        /* Force bottom */
+        top: auto !important;
+        /* Override any top */
         left: 0;
         width: 100%;
         height: auto;
