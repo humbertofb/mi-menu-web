@@ -468,12 +468,32 @@ h3 {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.input-full,
+.input-short {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     font-family: inherit;
+    background-color: #f9f9f9;
+    transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.input-full:focus,
+.input-short:focus {
+    outline: none;
+    border-color: var(--color-green-dark);
+    background-color: var(--color-white);
+    box-shadow: 0 0 0 3px rgba(0, 88, 63, 0.1);
+}
+
+/* Calendar specific */
+input[type="datetime-local"] {
+    color: var(--color-text-dark);
+    font-family: 'Outfit', sans-serif;
 }
 
 .modal-actions {
@@ -612,8 +632,8 @@ h3 {
     }
 
     .products-column {
-        padding-bottom: 250px;
-        /* Space for the sticky panel so last items are visible */
+        padding-bottom: 320px;
+        /* Extra space for the sticky panel */
     }
 
     .products-grid {
@@ -637,29 +657,28 @@ h3 {
 
     .calculation-panel {
         position: fixed;
-        /* Fixed to viewport */
         bottom: 0 !important;
-        /* Force bottom */
         top: auto !important;
-        /* Override any top */
         left: 0;
         width: 100%;
         height: auto;
-        max-height: 40vh;
-        /* Max 40% of screen */
-        z-index: 1000;
+        max-height: 45vh;
+        z-index: 9999;
+        /* Max visibility */
         margin: 0;
-        border-top: 1px solid #ddd;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        border-top: none;
+        box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
+        background: var(--color-white);
+        /* Solid background */
     }
 
     .panel-card {
-        border-radius: 16px 16px 0 0;
-        padding: 1rem;
+        border-radius: 20px 20px 0 0;
+        padding: 1.2rem;
         border-top: none;
-        /* Remove the green top border for cleaner look */
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(5px);
+        background: var(--color-white);
+        box-shadow: none;
+        /* Shadow handled by parent */
     }
 
     /* Compact summary for mobile */
