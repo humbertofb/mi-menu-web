@@ -134,8 +134,14 @@
                             </div>
 
                             <div class="panel-actions">
-                                <input type="text" id="menu-name-input" placeholder="Nombre (ej: Mesa 4)"
-                                    class="input-full">
+                                <div class="input-group-row">
+                                    <input type="text" id="menu-name-input" placeholder="Nombre (ej: Familia Pérez)"
+                                        class="input-full">
+                                    <input type="text" id="menu-table-input" placeholder="Mesa" class="input-short">
+                                </div>
+                                <div class="input-group-row">
+                                    <input type="datetime-local" id="menu-date-input" class="input-full">
+                                </div>
                                 <button id="btn-save-pending" class="btn-secondary">Guardar en Pendientes</button>
                                 <button id="btn-finalize" class="btn-primary">Finalizar y Guardar</button>
                             </div>
