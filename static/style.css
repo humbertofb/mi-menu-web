@@ -26,8 +26,10 @@ body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--color-bg-light);
     color: var(--color-text-dark);
-    height: 100vh;
-    overflow: hidden;
+    height: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 h1,
@@ -136,7 +138,7 @@ h3 {
 /* Main Content */
 .main-content {
     flex: 1;
-    overflow-y: auto;
+    flex: 1;
     padding: 2rem;
     position: relative;
     background-image: radial-gradient(var(--color-green-light) 1px, transparent 1px);
@@ -540,12 +542,10 @@ h3 {
     .app-container {
         flex-direction: column;
         height: auto;
-        overflow: visible;
     }
 
     .sidebar {
         width: 100%;
-        height: auto;
         padding: 1rem;
         flex-direction: row;
         align-items: center;
@@ -594,30 +594,87 @@ h3 {
     }
 
     .menu-workspace {
-        grid-template-columns: 1fr;
         display: flex;
-        flex-direction: column-reverse;
-        /* Summary at bottom */
+        flex-direction: column;
+        /* Products on top, Summary on bottom (sticky) */
+        gap: 1rem;
+    }
+
+    .products-column {
+        padding-bottom: 250px;
+        /* Space for the sticky panel so last items are visible */
     }
 
     .calculation-panel {
-        position: sticky;
+        position: fixed;
+        /* Fixed to viewport */
         bottom: 0;
-        top: auto;
-        z-index: 90;
-        margin-top: 1rem;
+        left: 0;
+        width: 100%;
+        height: auto;
+        max-height: 40vh;
+        /* Max 40% of screen */
+        z-index: 1000;
+        margin: 0;
         border-top: 1px solid #ddd;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     }
 
     .panel-card {
         border-radius: 16px 16px 0 0;
         padding: 1rem;
+        border-top: none;
+        /* Remove the green top border for cleaner look */
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(5px);
     }
 
-    .products-column {
-        padding-bottom: 80px;
-        /* Space for sticky panel */
+    /* Compact summary for mobile */
+    .calc-details {
+        margin: 0.5rem 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        /* 2 columns */
+        gap: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .calc-row {
+        margin-bottom: 0;
+    }
+
+    .divider {
+        display: none;
+    }
+
+    .calc-row.total {
+        grid-column: span 2;
+        text-align: center;
+        margin-top: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .panel-actions {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .panel-actions button {
+        flex: 1;
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .input-group-row {
+        display: none;
+        /* Hide inputs on sticky panel to save space, maybe show on expand? */
+        /* Or just show them compact */
+    }
+
+    /* Let's keep inputs but compact */
+    .panel-actions .input-group-row {
+        display: flex;
+        width: 100%;
     }
 }
 
