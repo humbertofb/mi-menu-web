@@ -206,7 +206,7 @@ function renderPendingMenus() {
                 <span class="history-date">${new Date(menu.date).toLocaleDateString()}</span>
             </div>
             <div class="history-items">
-                ${menu.itemsNames.join(', ')}
+                ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
             </div>
             <div class="history-total">
                 Total: ${menu.total}€
@@ -236,7 +236,7 @@ function renderHistory() {
                 <span class="history-date">${new Date(menu.date).toLocaleString()}</span>
             </div>
             <div class="history-items">
-                ${menu.itemsNames.join(', ')}
+                ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
             </div>
             <div class="history-total">
                 ${menu.total}€
