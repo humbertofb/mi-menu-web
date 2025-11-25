@@ -8,7 +8,7 @@ const firebaseConfig = {
     storageBucket: "my-humber-project-319815.firebasestorage.app",
     messagingSenderId: "110994378936",
     appId: "1:110994378936:web:60b20c16ce5f40b47e644d"
-}
+};
 
 // Initialize Firebase (will be done in script.js if config is valid)
 // window.firebaseConfig = firebaseConfig;
