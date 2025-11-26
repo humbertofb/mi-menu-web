@@ -63,20 +63,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
 
     // Hide Header on Scroll (Mobile)
-    let lastScrollTop = 0;
     const sidebar = document.querySelector('.sidebar');
     window.addEventListener('scroll', () => {
         if (window.innerWidth > 768) return; // Only on mobile
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop > lastScrollTop && scrollTop > 60) {
-            // Scroll Down
+        if (scrollTop > 0) {
+            // Hide if scrolled down at all
             sidebar.classList.add('header-hidden');
         } else {
-            // Scroll Up
+            // Show ONLY at the very top
             sidebar.classList.remove('header-hidden');
         }
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
     }, { passive: true });
 });
 

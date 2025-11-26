@@ -643,7 +643,6 @@ input[type="datetime-local"] {
         width: 100%;
         padding: 0.5rem 1rem;
         position: fixed;
-        /* Changed to fixed for hide-on-scroll */
         top: 0;
         left: 0;
         z-index: 1100;
@@ -668,12 +667,16 @@ input[type="datetime-local"] {
         justify-content: center;
         align-items: center;
         gap: 10px;
+        padding-bottom: 5px;
     }
 
     .brand h1 {
-        font-size: 1.1rem;
+        font-size: 1.4rem;
+        /* Larger title */
+        font-weight: 700;
+        /* Bold */
         margin: 5px 0;
-        line-height: 1;
+        line-height: 1.2;
         white-space: nowrap;
         /* Force single line */
         overflow: hidden;
@@ -719,10 +722,10 @@ input[type="datetime-local"] {
     /* Main Content Spacing */
     .main-content {
         padding: 1rem;
-        padding-top: 110px;
-        /* Space for fixed header */
-        padding-bottom: 80px;
-        /* Space for fixed bottom panel */
+        padding-top: 130px;
+        /* Increased space for fixed header */
+        padding-bottom: 70px;
+        /* Reduced space for fixed bottom panel */
         overflow: visible;
         height: auto;
     }
@@ -770,10 +773,13 @@ input[type="datetime-local"] {
     }
 
     .btn-edit-mini {
-        background-color: #f0f0f0;
-        border-color: #ddd;
-        color: #666;
+        background-color: #ffc107;
+        /* Yellow/Orange */
+        color: #000;
+        border: none;
         border-radius: 8px;
+        padding: 5px 10px;
+        font-weight: 500;
     }
 
     /* Mobile Accordion Calculation Panel */
@@ -786,7 +792,7 @@ input[type="datetime-local"] {
         right: 0 !important;
         width: 100% !important;
         height: auto;
-        max-height: 60px;
+        max-height: 70px;
         /* Collapsed state */
         background: #ffffff;
         z-index: 9999 !important;
@@ -810,12 +816,30 @@ input[type="datetime-local"] {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
-        background: var(--color-green-dark);
-        color: var(--color-white);
+        padding: 0.8rem 1.2rem;
+        background: var(--color-white);
+        /* White background as requested */
+        color: var(--color-text-dark);
         cursor: pointer;
-        height: 60px;
+        height: 70px;
         flex-shrink: 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-total-label {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--color-green-dark);
+    }
+
+    .btn-detail-view {
+        background-color: var(--color-green-dark);
+        color: var(--color-white);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
     }
 
     .panel-card {
