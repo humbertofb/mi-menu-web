@@ -43,6 +43,8 @@ h3 {
 .app-container {
     display: flex;
     height: 100vh;
+    overflow: hidden;
+    /* Prevent body scroll when sidebar is fixed */
 }
 
 /* Sidebar */
@@ -55,6 +57,8 @@ h3 {
     padding: 2rem;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
     z-index: 10;
+    flex-shrink: 0;
+    /* Prevent shrinking */
 }
 
 .brand {
@@ -141,16 +145,20 @@ h3 {
 /* Main Content */
 .main-content {
     flex: 1;
-    flex: 1;
     padding: 2rem;
     position: relative;
     background-image: radial-gradient(var(--color-green-light) 1px, transparent 1px);
     background-size: 20px 20px;
+    overflow-y: auto;
+    /* Enable scrolling for main content */
+    height: 100vh;
 }
 
 .view-section {
     display: none;
     animation: fadeIn 0.4s ease;
+    padding-bottom: 2rem;
+    /* Space at bottom */
 }
 
 .view-section.active {
@@ -185,6 +193,8 @@ h3 {
     display: grid;
     grid-template-columns: 1fr 350px;
     gap: 2rem;
+    align-items: start;
+    /* Align items to top */
 }
 
 /* Products Column */
@@ -431,19 +441,28 @@ h3 {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 10000;
+    /* High z-index */
     backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
 }
 
-.hidden {
-    display: none;
+.modal.hidden {
+    display: none !important;
+    /* Force hide */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .modal-content {
     background: var(--color-white);
     padding: 2rem;
     border-radius: 16px;
-    width: 400px;
+    width: 90%;
+    max-width: 400px;
     position: relative;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
@@ -633,6 +652,8 @@ input[type="datetime-local"] {
         padding-bottom: 400px;
         /* Huge padding to ensure scrollability */
         overflow: visible;
+        height: auto;
+        /* Allow content to grow */
     }
 
     .menu-workspace {
@@ -683,10 +704,12 @@ input[type="datetime-local"] {
         height: auto;
         max-height: 50vh;
         background: #ffffff;
-        z-index: 10000;
+        z-index: 1000;
         box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.2);
         border-top: 1px solid #eee;
         margin: 0;
+        padding-bottom: env(safe-area-inset-bottom);
+        /* Safe area for iOS */
     }
 
     .panel-card {

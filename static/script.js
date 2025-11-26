@@ -63,7 +63,9 @@ function setupEventListeners() {
     });
 
     // Modal
-    closeModal.addEventListener('click', hideModal);
+    if (closeModal) {
+        closeModal.addEventListener('click', hideModal);
+    }
     window.addEventListener('click', (e) => {
         if (e.target === modal) hideModal();
     });
@@ -77,19 +79,26 @@ function setupEventListeners() {
     });
 
     // Form Submit
-    productForm.addEventListener('submit', handleProductSubmit);
+    if (productForm) {
+        productForm.addEventListener('submit', handleProductSubmit);
+    }
 
     // Delete Product
-    btnDeleteProd.addEventListener('click', handleDeleteProduct);
+    if (btnDeleteProd) {
+        btnDeleteProd.addEventListener('click', handleDeleteProduct);
+    }
 
     // Save/Finalize Buttons
-    btnSavePending.addEventListener('click', saveToPending);
-    btnFinalize.addEventListener('click', finalizeMenu);
+    if (btnSavePending) btnSavePending.addEventListener('click', saveToPending);
+    if (btnFinalize) btnFinalize.addEventListener('click', finalizeMenu);
 
     // Sorting
-    document.getElementById('sort-products').addEventListener('change', (e) => {
-        renderProducts(e.target.value);
-    });
+    const sortSelect = document.getElementById('sort-products');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            renderProducts(e.target.value);
+        });
+    }
 }
 
 function switchView(viewId) {
@@ -115,6 +124,10 @@ function switchView(viewId) {
 // --- Firebase / Data Logic ---
 
 function loadProducts() {
+    if (typeof db === 'undefined') {
+        console.error("Firebase 'db' is not defined. Check firebase-config.js");
+        return;
+    }
     db.ref('products').on('value', (snapshot) => {
         const data = snapshot.val();
         products = [];
@@ -131,6 +144,7 @@ function loadProducts() {
 }
 
 function loadPendingMenus() {
+    if (typeof db === 'undefined') return;
     db.ref('pending_menus').on('value', (snapshot) => {
         const data = snapshot.val();
         pendingMenus = [];
@@ -144,6 +158,7 @@ function loadPendingMenus() {
 }
 
 function loadHistory() {
+    if (typeof db === 'undefined') return;
     db.ref('history').on('value', (snapshot) => {
         const data = snapshot.val();
         historyMenus = [];
@@ -174,7 +189,7 @@ function renderProducts(sortBy = 'name') {
     }
 
     // Clear containers
-    Object.values(containers).forEach(el => el.innerHTML = '');
+    Object.values(containers).forEach(el => { if (el) el.innerHTML = ''; });
 
     sortedProducts.forEach(prod => {
         const card = document.createElement('div');
@@ -202,6 +217,7 @@ function renderProducts(sortBy = 'name') {
 }
 
 function renderPendingMenus() {
+    if (!pendingContainer) return;
     pendingContainer.innerHTML = '';
     if (pendingMenus.length === 0) {
         pendingContainer.innerHTML = '<p class="empty-state">No hay menús pendientes.</p>';
@@ -238,6 +254,7 @@ function renderPendingMenus() {
 }
 
 function renderHistory() {
+    if (!historyContainer) return;
     historyContainer.innerHTML = '';
     if (historyMenus.length === 0) {
         historyContainer.innerHTML = '<p class="empty-state">No hay historial disponible.</p>';
@@ -293,11 +310,11 @@ function calculateTotal() {
     const total = foodTotal + drinksTotal + PRICE_PAN;
     const perPerson = total / PERSONS;
 
-    calcElements.food.textContent = foodTotal.toFixed(2) + '€';
-    calcElements.drinks.textContent = drinksTotal.toFixed(2) + '€';
-    calcElements.pan.textContent = PRICE_PAN.toFixed(2) + '€';
-    calcElements.total.textContent = total.toFixed(2) + '€';
-    calcElements.perPerson.textContent = perPerson.toFixed(2) + '€';
+    if (calcElements.food) calcElements.food.textContent = foodTotal.toFixed(2) + '€';
+    if (calcElements.drinks) calcElements.drinks.textContent = drinksTotal.toFixed(2) + '€';
+    if (calcElements.pan) calcElements.pan.textContent = PRICE_PAN.toFixed(2) + '€';
+    if (calcElements.total) calcElements.total.textContent = total.toFixed(2) + '€';
+    if (calcElements.perPerson) calcElements.perPerson.textContent = perPerson.toFixed(2) + '€';
 
     return { foodTotal, drinksTotal, total, perPerson };
 }
@@ -328,11 +345,6 @@ function saveToPending() {
         total: totals.total.toFixed(2),
         perPerson: totals.perPerson.toFixed(2)
     };
-
-    // If editing an existing pending menu, update it instead of pushing new?
-    // User requested: "cuando se guarde un menú que está en pendientes se quite de allí y solo se quede en historial"
-    // This is for finalize. For "Save to Pending", if we loaded it, we should probably update it or create new?
-    // Let's create new for now to avoid complexity, or update if we have ID.
 
     if (currentPendingId) {
         db.ref(`pending_menus/${currentPendingId}`).update(menuData)
@@ -393,26 +405,21 @@ function finalizeMenu() {
 
 function resetSelection() {
     currentSelection.clear();
-    menuNameInput.value = '';
-    menuTableInput.value = '';
+    if (menuNameInput) menuNameInput.value = '';
+    if (menuTableInput) menuTableInput.value = '';
     // Reset date to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    menuDateInput.value = now.toISOString().slice(0, 16);
+    if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
 
     currentPendingId = null; // Reset pending ID
-    renderProducts(document.getElementById('sort-products').value);
+    const sortVal = document.getElementById('sort-products') ? document.getElementById('sort-products').value : 'name';
+    renderProducts(sortVal);
     calculateTotal();
 }
 
 // Simple Custom Modal for Messages
 function showModalMessage(title, message) {
-    // Reuse product modal structure or create a simple alert replacement
-    // For simplicity, using alert for now as implementing a full new modal requires HTML changes
-    // But user asked for "no tienen modal". 
-    // Let's use the existing modal structure but hide the form and show message
-    // Actually, let's just use alert for now to ensure functionality, 
-    // or better, create a dynamic div.
     alert(`${title}\n\n${message}`);
 }
 
@@ -420,10 +427,10 @@ function loadMenu(menuId, isPending) {
     const menu = isPending ? pendingMenus.find(m => m.id === menuId) : null;
     if (menu) {
         currentSelection = new Set(menu.items);
-        menuNameInput.value = menu.name || '';
-        menuTableInput.value = menu.table || '';
+        if (menuNameInput) menuNameInput.value = menu.name || '';
+        if (menuTableInput) menuTableInput.value = menu.table || '';
         // Handle date format for input
-        if (menu.date) {
+        if (menu.date && menuDateInput) {
             const d = new Date(menu.date);
             d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
             menuDateInput.value = d.toISOString().slice(0, 16);
@@ -434,17 +441,10 @@ function loadMenu(menuId, isPending) {
         } else {
             currentPendingId = null;
         }
-        renderProducts(document.getElementById('sort-products').value);
+        const sortVal = document.getElementById('sort-products') ? document.getElementById('sort-products').value : 'name';
+        renderProducts(sortVal);
         calculateTotal();
         switchView('view-main-menu');
-
-        // Optionally remove from pending if we are "loading" it to finalize it
-        // For now, we keep it until they explicitly delete or finalize (which doesn't auto-delete pending)
-        // Let's auto-delete from pending if they finalize? Or just let them manage it.
-        // User asked to "edit and then finalize", implies moving it.
-        // We'll delete from pending ONLY if they click "Finalize" later? 
-        // For simplicity, let's just load it. If they save again, it's a new entry.
-        // To make it a true "move", we would need to track the "active pending ID".
     }
 }
 
@@ -463,29 +463,29 @@ function deleteHistory(id) {
 // --- Product CRUD ---
 
 function openProductModal(prodId = null, category = 'primeros') {
+    if (!modal) return;
     modal.classList.remove('hidden');
-    const form = document.getElementById('product-form');
 
     if (prodId) {
         const prod = products.find(p => p.id === prodId);
-        modalTitle.textContent = 'Editar Producto';
-        document.getElementById('prod-id').value = prod.id;
-        document.getElementById('prod-name').value = prod.name;
-        document.getElementById('prod-price').value = prod.price;
-        document.getElementById('prod-category').value = prod.category;
-        btnDeleteProd.classList.remove('hidden');
+        if (modalTitle) modalTitle.textContent = 'Editar Producto';
+        if (document.getElementById('prod-id')) document.getElementById('prod-id').value = prod.id;
+        if (document.getElementById('prod-name')) document.getElementById('prod-name').value = prod.name;
+        if (document.getElementById('prod-price')) document.getElementById('prod-price').value = prod.price;
+        if (document.getElementById('prod-category')) document.getElementById('prod-category').value = prod.category;
+        if (btnDeleteProd) btnDeleteProd.classList.remove('hidden');
     } else {
-        modalTitle.textContent = 'Añadir Producto';
-        document.getElementById('prod-id').value = '';
-        document.getElementById('prod-name').value = '';
-        document.getElementById('prod-price').value = '';
-        document.getElementById('prod-category').value = category;
-        btnDeleteProd.classList.add('hidden');
+        if (modalTitle) modalTitle.textContent = 'Añadir Producto';
+        if (document.getElementById('prod-id')) document.getElementById('prod-id').value = '';
+        if (document.getElementById('prod-name')) document.getElementById('prod-name').value = '';
+        if (document.getElementById('prod-price')) document.getElementById('prod-price').value = '';
+        if (document.getElementById('prod-category')) document.getElementById('prod-category').value = category;
+        if (btnDeleteProd) btnDeleteProd.classList.add('hidden');
     }
 }
 
 function hideModal() {
-    modal.classList.add('hidden');
+    if (modal) modal.classList.add('hidden');
 }
 
 function handleProductSubmit(e) {
