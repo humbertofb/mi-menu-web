@@ -220,6 +220,30 @@
         </div>
     </div>
 
+    <!-- Generic Message Modal -->
+    <div id="message-modal" class="modal hidden">
+        <div class="modal-content small-modal">
+            <span class="close-modal" id="close-msg-modal">&times;</span>
+            <h3 id="msg-modal-title">Título</h3>
+            <p id="msg-modal-body">Mensaje aquí...</p>
+            <div class="modal-actions center">
+                <button id="btn-msg-ok" class="btn-primary">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content small-modal">
+            <h3 id="confirm-modal-title">Confirmar</h3>
+            <p id="confirm-modal-body">¿Estás seguro?</p>
+            <div class="modal-actions center">
+                <button id="btn-confirm-cancel" class="btn-secondary">Cancelar</button>
+                <button id="btn-confirm-ok" class="btn-danger">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="static/firebase-config.js"></script>
     <script src="static/script.js"></script>
 </body>

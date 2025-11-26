@@ -33,12 +33,17 @@ const productForm = document.getElementById('product-form');
 const modalTitle = document.getElementById('modal-title');
 const btnDeleteProd = document.getElementById('btn-delete-prod');
 
+// Generic Modals
+const msgModal = document.getElementById('message-modal');
+const confirmModal = document.getElementById('confirm-modal');
+
 // State
 let products = [];
 let currentSelection = new Set(); // Stores product IDs
 let pendingMenus = [];
 let historyMenus = [];
 let currentPendingId = null; // Track if we are editing a pending menu
+let confirmCallback = null; // Store callback for confirmation modal
 
 // Constants
 const PRICE_PAN = 2.40;
@@ -74,12 +79,23 @@ function setupEventListeners() {
         });
     }
 
-    // Modal
-    if (closeModal) {
-        closeModal.addEventListener('click', hideModal);
-    }
+    // Modal Closers
+    if (closeModal) closeModal.addEventListener('click', hideModal);
+
+    // Generic Modal Closers
+    document.getElementById('close-msg-modal').addEventListener('click', () => msgModal.classList.add('hidden'));
+    document.getElementById('btn-msg-ok').addEventListener('click', () => msgModal.classList.add('hidden'));
+
+    document.getElementById('btn-confirm-cancel').addEventListener('click', () => confirmModal.classList.add('hidden'));
+    document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+        if (confirmCallback) confirmCallback();
+        confirmModal.classList.add('hidden');
+    });
+
     window.addEventListener('click', (e) => {
         if (e.target === modal) hideModal();
+        if (e.target === msgModal) msgModal.classList.add('hidden');
+        if (e.target === confirmModal) confirmModal.classList.add('hidden');
     });
 
     // Add Product Buttons
@@ -146,8 +162,15 @@ function loadProducts() {
         if (data) {
             Object.keys(data).forEach(key => {
                 const prod = data[key];
-                if (prod && prod.name && prod.price) {
-                    products.push({ id: key, ...prod });
+                // Defensive check: Ensure product has ID and basic fields
+                if (prod) {
+                    products.push({
+                        id: key,
+                        name: prod.name || 'Sin nombre',
+                        price: prod.price || 0,
+                        category: prod.category || 'primeros',
+                        usageCount: prod.usageCount || 0
+                    });
                 }
             });
         }
@@ -259,7 +282,7 @@ function renderPendingMenus() {
                 ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
             </div>
             <div class="history-total">
-                Total: ${parseFloat(menu.total).toFixed(2)}€
+                Total: ${parseFloat(menu.total || 0).toFixed(2)}€
                 <div style="font-size: 0.8rem; font-weight: normal; color: #666;">
                     (${menu.perPerson ? parseFloat(menu.perPerson).toFixed(2) : '0.00'}€ / pers)
                 </div>
@@ -296,7 +319,7 @@ function renderHistory() {
                 ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
             </div>
             <div class="history-total">
-                ${parseFloat(menu.total).toFixed(2)}€
+                ${parseFloat(menu.total || 0).toFixed(2)}€
                 <div style="font-size: 0.8rem; font-weight: normal; color: #666;">
                     (${menu.perPerson ? parseFloat(menu.perPerson).toFixed(2) : '0.00'}€ / pers)
                 </div>
@@ -351,16 +374,16 @@ function saveToPending() {
     const dateVal = menuDateInput.value;
 
     if (!name) {
-        showModalMessage('Falta información', 'Por favor, ponle un nombre al menú (ej: Familia Pérez).');
+        showMessageModal('Falta información', 'Por favor, ponle un nombre al menú (ej: Familia Pérez).');
         return;
     }
     if (currentSelection.size === 0) {
-        showModalMessage('Menú vacío', 'Selecciona al menos un plato.');
+        showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
         return;
     }
 
     const selectedItems = products.filter(p => currentSelection.has(p.id));
-    const totals = calculateTotal();
+    const totals = calculateTotal(); // Ensure we have fresh totals
 
     const menuData = {
         name: name,
@@ -375,13 +398,13 @@ function saveToPending() {
     if (currentPendingId) {
         db.ref(`pending_menus/${currentPendingId}`).update(menuData)
             .then(() => {
-                showModalMessage('Éxito', 'Menú actualizado en pendientes.');
+                showMessageModal('Éxito', 'Menú actualizado en pendientes.');
                 resetSelection();
             });
     } else {
         db.ref('pending_menus').push(menuData)
             .then(() => {
-                showModalMessage('Éxito', 'Menú guardado en pendientes.');
+                showMessageModal('Éxito', 'Menú guardado en pendientes.');
                 resetSelection();
             })
             .catch(err => console.error(err));
@@ -394,12 +417,12 @@ function finalizeMenu() {
     const dateVal = menuDateInput.value;
 
     if (currentSelection.size === 0) {
-        showModalMessage('Menú vacío', 'Selecciona al menos un plato.');
+        showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
         return;
     }
 
     const selectedItems = products.filter(p => currentSelection.has(p.id));
-    const totals = calculateTotal();
+    const totals = calculateTotal(); // Ensure we have fresh totals
 
     const menuData = {
         name: name || `Mesa ${new Date().toLocaleTimeString()}`,
@@ -423,7 +446,7 @@ function finalizeMenu() {
             if (currentPendingId) {
                 db.ref(`pending_menus/${currentPendingId}`).remove();
             }
-            showModalMessage('Éxito', 'Menú finalizado y guardado en historial.');
+            showMessageModal('Éxito', 'Menú finalizado y guardado en historial.');
             resetSelection();
         })
         .catch(err => console.error(err));
@@ -444,9 +467,18 @@ function resetSelection() {
     calculateTotal();
 }
 
-// Simple Custom Modal for Messages
-function showModalMessage(title, message) {
-    alert(`${title}\n\n${message}`);
+// Custom Modal Functions
+function showMessageModal(title, message) {
+    document.getElementById('msg-modal-title').textContent = title;
+    document.getElementById('msg-modal-body').textContent = message;
+    msgModal.classList.remove('hidden');
+}
+
+function showConfirmModal(title, message, callback) {
+    document.getElementById('confirm-modal-title').textContent = title;
+    document.getElementById('confirm-modal-body').textContent = message;
+    confirmCallback = callback;
+    confirmModal.classList.remove('hidden');
 }
 
 function loadMenu(menuId, isPending) {
@@ -471,32 +503,33 @@ function loadMenu(menuId, isPending) {
         renderProducts(sortVal);
         calculateTotal();
         switchView('view-main-menu');
-
-        // On mobile, expand the panel so they see the loaded data?
-        // Maybe better to keep it collapsed to let them edit products first.
     }
 }
 
 function deletePending(id) {
-    if (confirm('¿Borrar este menú pendiente?')) {
+    showConfirmModal('Borrar Menú', '¿Estás seguro de que quieres borrar este menú pendiente?', () => {
         db.ref(`pending_menus/${id}`).remove();
-    }
+    });
 }
 
 function deleteHistory(id) {
-    if (confirm('¿Borrar este menú del historial?')) {
+    showConfirmModal('Borrar Historial', '¿Estás seguro de que quieres borrar este menú del historial?', () => {
         db.ref(`history/${id}`).remove();
-    }
+    });
 }
 
 // --- Product CRUD ---
 
 function openProductModal(prodId = null, category = 'primeros') {
     if (!modal) return;
-    modal.classList.remove('hidden');
 
     if (prodId) {
         const prod = products.find(p => p.id === prodId);
+        // Defensive check
+        if (!prod) {
+            console.error('Product not found:', prodId);
+            return;
+        }
         if (modalTitle) modalTitle.textContent = 'Editar Producto';
         if (document.getElementById('prod-id')) document.getElementById('prod-id').value = prod.id;
         if (document.getElementById('prod-name')) document.getElementById('prod-name').value = prod.name;
@@ -511,6 +544,7 @@ function openProductModal(prodId = null, category = 'primeros') {
         if (document.getElementById('prod-category')) document.getElementById('prod-category').value = category;
         if (btnDeleteProd) btnDeleteProd.classList.add('hidden');
     }
+    modal.classList.remove('hidden');
 }
 
 function hideModal() {
@@ -539,9 +573,11 @@ function handleProductSubmit(e) {
 
 function handleDeleteProduct() {
     const id = document.getElementById('prod-id').value;
-    if (id && confirm('¿Seguro que quieres eliminar este producto?')) {
-        db.ref(`products/${id}`).remove();
-        hideModal();
+    if (id) {
+        showConfirmModal('Eliminar Producto', '¿Seguro que quieres eliminar este producto?', () => {
+            db.ref(`products/${id}`).remove();
+            hideModal();
+        });
     }
 }
 
