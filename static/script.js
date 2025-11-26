@@ -61,6 +61,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
+
+    // Hide Header on Scroll (Mobile)
+    let lastScrollTop = 0;
+    const sidebar = document.querySelector('.sidebar');
+    window.addEventListener('scroll', () => {
+        if (window.innerWidth > 768) return; // Only on mobile
+
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop && scrollTop > 60) {
+            // Scroll Down
+            sidebar.classList.add('header-hidden');
+        } else {
+            // Scroll Up
+            sidebar.classList.remove('header-hidden');
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+    }, { passive: true });
 });
 
 function setupEventListeners() {
@@ -241,7 +258,7 @@ function renderProducts(sortBy = 'name') {
             </div>
             <div class="card-actions-row">
                 <button class="btn-toggle-prod" onclick="toggleProductSelection('${prod.id}')">
-                    ${isSelected ? 'Quitar' : 'Añadir +'}
+                    ${isSelected ? 'Quitar' : 'Añadir'}
                 </button>
                 <button class="btn-edit-mini" onclick="openProductModal('${prod.id}')">Editar</button>
             </div>

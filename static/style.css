@@ -642,14 +642,22 @@ input[type="datetime-local"] {
     .sidebar {
         width: 100%;
         padding: 0.5rem 1rem;
-        position: sticky;
+        position: fixed;
+        /* Changed to fixed for hide-on-scroll */
         top: 0;
+        left: 0;
         z-index: 1100;
         /* Above content, below modal */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         flex-direction: column;
         height: auto;
         background-color: var(--color-white);
+        transition: transform 0.3s ease;
+        /* Smooth hide animation */
+    }
+
+    .sidebar.header-hidden {
+        transform: translateY(-100%);
     }
 
     .brand {
@@ -663,9 +671,13 @@ input[type="datetime-local"] {
     }
 
     .brand h1 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         margin: 5px 0;
         line-height: 1;
+        white-space: nowrap;
+        /* Force single line */
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .brand p {
@@ -675,7 +687,8 @@ input[type="datetime-local"] {
     .nav-links {
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: space-between;
+        /* Distribute evenly */
         width: 100%;
         margin-top: 0.5rem;
         border-top: 1px solid #f0f0f0;
@@ -691,6 +704,8 @@ input[type="datetime-local"] {
         gap: 2px;
         font-size: 0.8rem;
         text-align: center;
+        flex: 1;
+        /* Equal width tabs */
     }
 
     .nav-links li .icon {
@@ -704,9 +719,9 @@ input[type="datetime-local"] {
     /* Main Content Spacing */
     .main-content {
         padding: 1rem;
-        padding-top: 20px;
-        /* Space below sticky header */
-        padding-bottom: 100px;
+        padding-top: 110px;
+        /* Space for fixed header */
+        padding-bottom: 80px;
         /* Space for fixed bottom panel */
         overflow: visible;
         height: auto;
@@ -747,19 +762,35 @@ input[type="datetime-local"] {
         font-size: 1.1rem;
     }
 
+    /* Mobile Button Styles */
+    .btn-toggle-prod {
+        border-radius: 20px;
+        /* More rounded */
+        padding: 6px 16px;
+    }
+
+    .btn-edit-mini {
+        background-color: #f0f0f0;
+        border-color: #ddd;
+        color: #666;
+        border-radius: 8px;
+    }
+
     /* Mobile Accordion Calculation Panel */
     .calculation-panel {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
+        position: fixed !important;
+        bottom: 0 !important;
+        top: auto !important;
+        /* Override sticky top */
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
         height: auto;
         max-height: 60px;
         /* Collapsed state */
         background: #ffffff;
-        z-index: 1000;
-        /* Below modal, above content */
+        z-index: 9999 !important;
+        /* Very high z-index */
         box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.2);
         border-top: 1px solid #eee;
         margin: 0;
@@ -855,7 +886,8 @@ input[type="datetime-local"] {
 
     /* Modals must be on top of everything */
     .modal {
-        z-index: 2000 !important;
+        z-index: 10000 !important;
+        /* Even higher than footer */
     }
 }
 
