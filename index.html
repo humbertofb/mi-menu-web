@@ -106,9 +106,15 @@
                     </div>
                     <!-- End Products Column -->
 
-                    <!-- Calculation Panel (Sticky) -->
-                    <div class="calculation-panel">
-                        <div class="panel-card">
+                    <!-- Calculation Panel (Sticky / Accordion on Mobile) -->
+                    <div class="calculation-panel" id="calc-panel">
+                        <!-- Mobile Toggle Header -->
+                        <div class="mobile-calc-toggle" id="mobile-calc-toggle">
+                            <span>Resumen: <strong id="mobile-total-preview">0.00€</strong></span>
+                            <span class="toggle-icon">▲</span>
+                        </div>
+
+                        <div class="panel-card" id="calc-content">
                             <h3>Resumen Actual</h3>
 
                             <div class="calc-details">

@@ -21,6 +21,11 @@ const btnFinalize = document.getElementById('btn-finalize');
 const pendingContainer = document.getElementById('pending-container');
 const historyContainer = document.getElementById('history-container');
 
+// Mobile Accordion Elements
+const calcPanel = document.getElementById('calc-panel');
+const mobileCalcToggle = document.getElementById('mobile-calc-toggle');
+const mobileTotalPreview = document.getElementById('mobile-total-preview');
+
 // Modal Elements
 const modal = document.getElementById('product-modal');
 const closeModal = document.querySelector('.close-modal');
@@ -50,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set default date to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    menuDateInput.value = now.toISOString().slice(0, 16);
+    if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
 });
 
 function setupEventListeners() {
@@ -61,6 +66,13 @@ function setupEventListeners() {
             switchView(viewId);
         });
     });
+
+    // Mobile Accordion Toggle
+    if (mobileCalcToggle) {
+        mobileCalcToggle.addEventListener('click', () => {
+            calcPanel.classList.toggle('expanded');
+        });
+    }
 
     // Modal
     if (closeModal) {
@@ -153,6 +165,8 @@ function loadPendingMenus() {
                 pendingMenus.push({ id: key, ...data[key] });
             });
         }
+        // Sort LIFO (Newest first)
+        pendingMenus.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
         renderPendingMenus();
     });
 }
@@ -167,8 +181,8 @@ function loadHistory() {
                 historyMenus.push({ id: key, ...data[key] });
             });
         }
-        // Sort history by date desc
-        historyMenus.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sort LIFO (Newest first)
+        historyMenus.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
         renderHistory();
     });
 }
@@ -192,20 +206,20 @@ function renderProducts(sortBy = 'name') {
     Object.values(containers).forEach(el => { if (el) el.innerHTML = ''; });
 
     sortedProducts.forEach(prod => {
+        const isSelected = currentSelection.has(prod.id);
         const card = document.createElement('div');
-        card.className = `product-card ${currentSelection.has(prod.id) ? 'selected' : ''}`;
-        card.onclick = (e) => {
-            if (!e.target.closest('.btn-edit-mini')) {
-                toggleProductSelection(prod.id);
-            }
-        };
+        card.className = `product-card ${isSelected ? 'selected' : ''}`;
 
+        // Explicit button logic, no card click
         card.innerHTML = `
             <div class="card-content">
                 <span class="prod-name">${prod.name}</span>
                 <span class="prod-price">${parseFloat(prod.price).toFixed(2)}€</span>
             </div>
-            <div class="card-actions">
+            <div class="card-actions-row">
+                <button class="btn-toggle-prod" onclick="toggleProductSelection('${prod.id}')">
+                    ${isSelected ? 'Quitar' : 'Añadir +'}
+                </button>
                 <button class="btn-edit-mini" onclick="openProductModal('${prod.id}')">Editar</button>
             </div>
         `;
@@ -214,6 +228,15 @@ function renderProducts(sortBy = 'name') {
             containers[prod.category].appendChild(card);
         }
     });
+}
+
+function formatDateHeader(dateString) {
+    if (!dateString) return 'Fecha desconocida';
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `Menú para la fecha: ${day}/${month}/${year}`;
 }
 
 function renderPendingMenus() {
@@ -230,7 +253,7 @@ function renderPendingMenus() {
         card.innerHTML = `
             <div class="history-header">
                 <span class="history-title">${menu.name || 'Sin nombre'}</span>
-                <span class="history-date">${new Date(menu.date).toLocaleDateString()}</span>
+                <span class="history-date">${formatDateHeader(menu.date)}</span>
             </div>
             <div class="history-items">
                 ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
@@ -242,7 +265,7 @@ function renderPendingMenus() {
                 </div>
             </div>
             <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
-                Mesa: ${menu.table || 'N/A'} | ${new Date(menu.date).toLocaleString()}
+                Mesa: ${menu.table || 'N/A'}
             </div>
             <div style="margin-top: 1rem; display: flex; gap: 10px;">
                 <button class="btn-secondary" onclick="loadMenu('${menu.id}', true)">Cargar/Editar</button>
@@ -267,7 +290,7 @@ function renderHistory() {
         card.innerHTML = `
             <div class="history-header">
                 <span class="history-title">${menu.name || 'Sin nombre'}</span>
-                <span class="history-date">${new Date(menu.date).toLocaleString()}</span>
+                <span class="history-date">${formatDateHeader(menu.date)}</span>
             </div>
             <div class="history-items">
                 ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
@@ -315,6 +338,9 @@ function calculateTotal() {
     if (calcElements.pan) calcElements.pan.textContent = PRICE_PAN.toFixed(2) + '€';
     if (calcElements.total) calcElements.total.textContent = total.toFixed(2) + '€';
     if (calcElements.perPerson) calcElements.perPerson.textContent = perPerson.toFixed(2) + '€';
+
+    // Update mobile preview
+    if (mobileTotalPreview) mobileTotalPreview.textContent = total.toFixed(2) + '€';
 
     return { foodTotal, drinksTotal, total, perPerson };
 }
@@ -445,6 +471,9 @@ function loadMenu(menuId, isPending) {
         renderProducts(sortVal);
         calculateTotal();
         switchView('view-main-menu');
+
+        // On mobile, expand the panel so they see the loaded data?
+        // Maybe better to keep it collapsed to let them edit products first.
     }
 }
 
@@ -521,3 +550,4 @@ window.openProductModal = openProductModal;
 window.loadMenu = loadMenu;
 window.deletePending = deletePending;
 window.deleteHistory = deleteHistory;
+window.toggleProductSelection = toggleProductSelection; // Expose to global

@@ -259,9 +259,11 @@ h3 {
     padding: 1rem;
     border-radius: 12px;
     border: 1px solid transparent;
-    cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .product-card:hover {
@@ -291,16 +293,11 @@ h3 {
     color: var(--color-green-dark);
 }
 
-.card-actions {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.product-card:hover .card-actions {
-    opacity: 1;
+.card-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
 }
 
 .btn-edit-mini {
@@ -323,6 +320,28 @@ h3 {
     border-color: var(--color-green-dark);
 }
 
+/* New Add/Remove Button */
+.btn-toggle-prod {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--color-green-dark);
+    background-color: var(--color-white);
+    color: var(--color-green-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-toggle-prod:hover {
+    background-color: var(--color-green-light);
+}
+
+.product-card.selected .btn-toggle-prod {
+    background-color: var(--color-green-dark);
+    color: var(--color-white);
+}
+
 /* Calculation Panel */
 .calculation-panel {
     position: sticky;
@@ -330,6 +349,11 @@ h3 {
     height: fit-content;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
+}
+
+.mobile-calc-toggle {
+    display: none;
+    /* Hidden on desktop */
 }
 
 .panel-card {
@@ -518,6 +542,10 @@ h3 {
 input[type="datetime-local"] {
     color: var(--color-text-dark);
     font-family: 'Outfit', sans-serif;
+    background: #fff;
+    cursor: pointer;
+    min-height: 48px;
+    /* Larger touch target */
 }
 
 .modal-actions {
@@ -649,11 +677,10 @@ input[type="datetime-local"] {
 
     .main-content {
         padding: 1rem;
-        padding-bottom: 400px;
-        /* Huge padding to ensure scrollability */
+        padding-bottom: 100px;
+        /* Space for fixed bottom panel */
         overflow: visible;
         height: auto;
-        /* Allow content to grow */
     }
 
     .menu-workspace {
@@ -673,17 +700,14 @@ input[type="datetime-local"] {
     }
 
     .product-card {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: center;
-        min-height: 110px;
+        min-height: auto;
         padding: 0.8rem;
     }
 
     .card-content {
         flex-direction: column;
         gap: 4px;
+        align-items: flex-start;
     }
 
     .prod-name {
@@ -694,7 +718,7 @@ input[type="datetime-local"] {
         font-size: 1.1rem;
     }
 
-    /* Robust Sticky Panel */
+    /* Mobile Accordion Calculation Panel */
     .calculation-panel {
         position: fixed;
         bottom: 0;
@@ -702,22 +726,54 @@ input[type="datetime-local"] {
         right: 0;
         width: 100%;
         height: auto;
-        max-height: 50vh;
+        max-height: 80vh;
+        /* Allow expansion */
         background: #ffffff;
-        z-index: 1000;
+        z-index: 9000;
+        /* Below modal */
         box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.2);
         border-top: 1px solid #eee;
         margin: 0;
-        padding-bottom: env(safe-area-inset-bottom);
-        /* Safe area for iOS */
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-calc-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--color-green-dark);
+        color: var(--color-white);
+        cursor: pointer;
+        border-radius: 16px 16px 0 0;
+        /* Rounded top */
     }
 
     .panel-card {
-        border-radius: 20px 20px 0 0;
+        border-radius: 0;
         padding: 1rem;
         box-shadow: none;
         border: none;
-        background: transparent;
+        background: var(--color-white);
+        display: none;
+        /* Hidden by default */
+        overflow-y: auto;
+    }
+
+    /* When expanded */
+    .calculation-panel.expanded .panel-card {
+        display: block;
+    }
+
+    .calculation-panel.expanded .mobile-calc-toggle .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Hide desktop header in panel */
+    .panel-card h3 {
+        display: none;
     }
 
     .calc-details {
