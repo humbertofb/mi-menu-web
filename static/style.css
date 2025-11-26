@@ -630,33 +630,42 @@ input[type="datetime-local"] {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+/* Responsive */
+@media (max-width: 768px) {
     .app-container {
         flex-direction: column;
         height: auto;
         overflow: visible;
     }
 
+    /* Fixed Header & Sticky Tabs */
     .sidebar {
         width: 100%;
-        padding: 0.8rem 1rem;
+        padding: 0.5rem 1rem;
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 1100;
+        /* Above content, below modal */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        height: 60px;
+        flex-direction: column;
+        height: auto;
+        background-color: var(--color-white);
     }
 
     .brand {
         margin: 0;
+        text-align: center;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
     }
 
     .brand h1 {
         font-size: 1.2rem;
-        margin: 0;
+        margin: 5px 0;
+        line-height: 1;
     }
 
     .brand p {
@@ -665,8 +674,12 @@ input[type="datetime-local"] {
 
     .nav-links {
         display: flex;
-        gap: 5px;
-        margin: 0;
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 0.5rem;
     }
 
     .nav-links li {
@@ -674,18 +687,25 @@ input[type="datetime-local"] {
         margin: 0;
         width: auto;
         border-radius: 8px;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.8rem;
+        text-align: center;
     }
 
-    .nav-links li span:not(.icon) {
-        display: none;
+    .nav-links li .icon {
+        font-size: 1.2rem;
     }
 
     .nav-footer {
         display: none;
     }
 
+    /* Main Content Spacing */
     .main-content {
         padding: 1rem;
+        padding-top: 20px;
+        /* Space below sticky header */
         padding-bottom: 100px;
         /* Space for fixed bottom panel */
         overflow: visible;
@@ -735,17 +755,24 @@ input[type="datetime-local"] {
         right: 0;
         width: 100%;
         height: auto;
-        max-height: 80vh;
-        /* Allow expansion */
+        max-height: 60px;
+        /* Collapsed state */
         background: #ffffff;
-        z-index: 9000;
-        /* Below modal */
+        z-index: 1000;
+        /* Below modal, above content */
         box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.2);
         border-top: 1px solid #eee;
         margin: 0;
         padding: 0;
         display: flex;
         flex-direction: column;
+        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    .calculation-panel.expanded {
+        max-height: 85vh;
+        /* Expanded state */
     }
 
     .mobile-calc-toggle {
@@ -756,8 +783,8 @@ input[type="datetime-local"] {
         background: var(--color-green-dark);
         color: var(--color-white);
         cursor: pointer;
-        border-radius: 16px 16px 0 0;
-        /* Rounded top */
+        height: 60px;
+        flex-shrink: 0;
     }
 
     .panel-card {
@@ -766,9 +793,8 @@ input[type="datetime-local"] {
         box-shadow: none;
         border: none;
         background: var(--color-white);
-        display: none;
-        /* Hidden by default */
         overflow-y: auto;
+        flex: 1;
     }
 
     /* When expanded */
@@ -812,6 +838,8 @@ input[type="datetime-local"] {
     .panel-actions {
         flex-direction: column;
         gap: 8px;
+        padding-bottom: 20px;
+        /* Extra padding for scroll */
     }
 
     .panel-actions button {
@@ -823,6 +851,11 @@ input[type="datetime-local"] {
     .input-group-row {
         display: flex;
         gap: 5px;
+    }
+
+    /* Modals must be on top of everything */
+    .modal {
+        z-index: 2000 !important;
     }
 }
 
