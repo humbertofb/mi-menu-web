@@ -91,6 +91,10 @@ function setupEventListeners() {
     if (mobileCalcToggle) {
         mobileCalcToggle.addEventListener('click', () => {
             calcPanel.classList.toggle('expanded');
+            const btn = mobileCalcToggle.querySelector('.btn-detail-view');
+            if (btn) {
+                btn.textContent = calcPanel.classList.contains('expanded') ? 'Ocultar Detalle' : 'Ver Detalle';
+            }
         });
     }
 
@@ -380,18 +384,60 @@ function calculateTotal() {
     // Update mobile preview
     if (mobileTotalPreview) mobileTotalPreview.textContent = total.toFixed(2) + '€';
 
+    // Render Selected List (Mobile/Desktop)
+    const listContainer = document.getElementById('selected-products-list');
+    if (listContainer) {
+        const selectedItems = products.filter(p => currentSelection.has(p.id));
+        if (selectedItems.length > 0) {
+            listContainer.innerHTML = selectedItems.map(p => `
+                <div class="selected-item">
+                    <span>${p.name}</span>
+                    <span class="selected-item-price">${parseFloat(p.price).toFixed(2)}€</span>
+                </div>
+            `).join('');
+        } else {
+            listContainer.innerHTML = '<div style="text-align:center; color:#999; font-size:0.9rem;">Ningún plato seleccionado</div>';
+        }
+    }
+
     return { foodTotal, drinksTotal, total, perPerson };
 }
 
+function validateInputs() {
+    let isValid = true;
+    const name = menuNameInput.value.trim();
+    const table = menuTableInput.value.trim();
+
+    if (!name) {
+        menuNameInput.classList.add('input-error');
+        isValid = false;
+    } else {
+        menuNameInput.classList.remove('input-error');
+    }
+
+    if (!table) {
+        menuTableInput.classList.add('input-error');
+        isValid = false;
+    } else {
+        menuTableInput.classList.remove('input-error');
+    }
+
+    // Clear error on input
+    menuNameInput.addEventListener('input', () => menuNameInput.classList.remove('input-error'));
+    menuTableInput.addEventListener('input', () => menuTableInput.classList.remove('input-error'));
+
+    return isValid;
+}
+
 function saveToPending() {
+    if (!validateInputs()) {
+        showMessageModal('Faltan datos', 'Por favor indica Nombre y Mesa.');
+        return;
+    }
+
     const name = menuNameInput.value.trim();
     const table = menuTableInput.value.trim();
     const dateVal = menuDateInput.value;
-
-    if (!name) {
-        showMessageModal('Falta información', 'Por favor, ponle un nombre al menú (ej: Familia Pérez).');
-        return;
-    }
     if (currentSelection.size === 0) {
         showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
         return;
@@ -427,6 +473,11 @@ function saveToPending() {
 }
 
 function finalizeMenu() {
+    if (!validateInputs()) {
+        showMessageModal('Faltan datos', 'Por favor indica Nombre y Mesa.');
+        return;
+    }
+
     const name = menuNameInput.value.trim();
     const table = menuTableInput.value.trim();
     const dateVal = menuDateInput.value;

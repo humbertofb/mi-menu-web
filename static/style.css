@@ -671,13 +671,12 @@ input[type="datetime-local"] {
     }
 
     .brand h1 {
-        font-size: 1.4rem;
-        /* Larger title */
+        font-size: 1.3rem;
+        /* Slightly reduced for safety */
         font-weight: 700;
-        /* Bold */
         margin: 5px 0;
         line-height: 1.2;
-        white-space: nowrap;
+        white-space: nowrap !important;
         /* Force single line */
         overflow: hidden;
         text-overflow: ellipsis;
@@ -721,11 +720,12 @@ input[type="datetime-local"] {
 
     /* Main Content Spacing */
     .main-content {
-        padding: 1rem;
-        padding-top: 130px;
+        padding: 1rem 15px;
+        /* Symmetric padding */
+        padding-top: 140px;
         /* Increased space for fixed header */
         padding-bottom: 70px;
-        /* Reduced space for fixed bottom panel */
+        /* Space for fixed bottom panel */
         overflow: visible;
         height: auto;
     }
@@ -748,37 +748,53 @@ input[type="datetime-local"] {
 
     .product-card {
         min-height: auto;
-        padding: 0.8rem;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .card-content {
         flex-direction: column;
         gap: 4px;
         align-items: flex-start;
+        margin-bottom: 10px;
     }
 
     .prod-name {
         font-size: 0.95rem;
+        font-weight: 600;
     }
 
     .prod-price {
         font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-green-dark);
+    }
+
+    .card-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        /* Gap between buttons */
     }
 
     /* Mobile Button Styles */
     .btn-toggle-prod {
         border-radius: 20px;
-        /* More rounded */
         padding: 6px 16px;
+        flex: 1;
+        /* Distribute space */
+        text-align: center;
     }
 
     .btn-edit-mini {
         background-color: #ffc107;
-        /* Yellow/Orange */
         color: #000;
         border: none;
         border-radius: 8px;
-        padding: 5px 10px;
+        padding: 6px 12px;
         font-weight: 500;
     }
 
