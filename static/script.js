@@ -61,29 +61,26 @@ document.addEventListener('DOMContentLoaded', () => {
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
 
-    // Hide Header on Scroll (Mobile) - Hide on UP, show on DOWN (relative to movement)
-    // Actually: Hide when scrolling DOWN (content moving up), Show when scrolling UP (content moving down)
+    // Hide Header on Scroll (Mobile) - Hide on UP, show on DOWN
     const sidebar = document.querySelector('.sidebar');
-    const mainContent = document.querySelector('.main-content');
     let lastScrollTop = 0;
 
-    if (mainContent) {
-        mainContent.addEventListener('scroll', () => {
-            if (window.innerWidth > 768) return; // Only on mobile
+    window.addEventListener('scroll', () => {
+        if (window.innerWidth > 768) return; // Only on mobile
 
-            const scrollTop = mainContent.scrollTop;
+        // Support standard window scroll
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-            if (scrollTop > lastScrollTop && scrollTop > 50) {
-                // Scrolling DOWN - hide header
-                sidebar.classList.add('header-hidden');
-            } else if (scrollTop < lastScrollTop) {
-                // Scrolling UP - show header
-                sidebar.classList.remove('header-hidden');
-            }
+        if (scrollTop > lastScrollTop && scrollTop > 50) {
+            // Scrolling DOWN - hide header
+            sidebar.classList.add('header-hidden');
+        } else if (scrollTop < lastScrollTop) {
+            // Scrolling UP - show header
+            sidebar.classList.remove('header-hidden');
+        }
 
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, { passive: true });
-    }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    }, { passive: true });
 });
 
 function setupEventListeners() {

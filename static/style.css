@@ -156,8 +156,6 @@ h3 {
     /* Clean background, no texture */
     overflow-y: auto;
     height: 100vh;
-    overscroll-behavior-y: contain;
-    /* Prevent scroll chaining */
     -webkit-overflow-scrolling: touch;
 }
 
@@ -761,6 +759,12 @@ input[type="datetime-local"] {
 /* Responsive */
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
     .app-container {
         flex-direction: column;
         height: auto;
@@ -896,12 +900,14 @@ input[type="datetime-local"] {
     }
 
     /* Main Content Spacing - Increased for header */
+    /* Main Content Spacing - Increased for header */
     .main-content {
         padding: 1rem;
         padding-top: 100px;
         /* More space for header + filter bar */
         padding-bottom: 100px;
         overflow: visible;
+        /* Let body scroll */
         height: auto;
     }
 
