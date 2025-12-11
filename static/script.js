@@ -14,7 +14,6 @@ const calcElements = {
     perPerson: document.getElementById('calc-per-person')
 };
 const menuNameInput = document.getElementById('menu-name-input');
-const menuTableInput = document.getElementById('menu-table-input');
 const menuDateInput = document.getElementById('menu-date-input');
 const btnSavePending = document.getElementById('btn-save-pending');
 const btnFinalize = document.getElementById('btn-finalize');
@@ -62,20 +61,29 @@ document.addEventListener('DOMContentLoaded', () => {
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
 
-    // Hide Header on Scroll (Mobile)
+    // Hide Header on Scroll (Mobile) - Hide on UP, show on DOWN (relative to movement)
+    // Actually: Hide when scrolling DOWN (content moving up), Show when scrolling UP (content moving down)
     const sidebar = document.querySelector('.sidebar');
-    window.addEventListener('scroll', () => {
-        if (window.innerWidth > 768) return; // Only on mobile
+    const mainContent = document.querySelector('.main-content');
+    let lastScrollTop = 0;
 
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop > 0) {
-            // Hide if scrolled down at all
-            sidebar.classList.add('header-hidden');
-        } else {
-            // Show ONLY at the very top
-            sidebar.classList.remove('header-hidden');
-        }
-    }, { passive: true });
+    if (mainContent) {
+        mainContent.addEventListener('scroll', () => {
+            if (window.innerWidth > 768) return; // Only on mobile
+
+            const scrollTop = mainContent.scrollTop;
+
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                // Scrolling DOWN - hide header
+                sidebar.classList.add('header-hidden');
+            } else if (scrollTop < lastScrollTop) {
+                // Scrolling UP - show header
+                sidebar.classList.remove('header-hidden');
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, { passive: true });
+    }
 });
 
 function setupEventListeners() {
@@ -88,13 +96,21 @@ function setupEventListeners() {
     });
 
     // Mobile Accordion Toggle
-    if (mobileCalcToggle) {
-        mobileCalcToggle.addEventListener('click', () => {
+    // Mobile Accordion Toggle - ONLY on Button Click
+    const btnToggleDetail = document.getElementById('btn-toggle-detail');
+    if (btnToggleDetail) {
+        btnToggleDetail.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent bubbling
             calcPanel.classList.toggle('expanded');
-            const btn = mobileCalcToggle.querySelector('.btn-detail-view');
-            if (btn) {
-                btn.textContent = calcPanel.classList.contains('expanded') ? 'Ocultar Detalle' : 'Ver Detalle';
-            }
+            btnToggleDetail.textContent = calcPanel.classList.contains('expanded') ? 'Ocultar Detalle' : 'Ver Detalle';
+        });
+    }
+
+    // Prevent click on the header bar from toggling if not clicking the button
+    if (mobileCalcToggle) {
+        mobileCalcToggle.addEventListener('click', (e) => {
+            // Do nothing if clicking the bar itself, only button triggers
+            // e.stopPropagation(); 
         });
     }
 
@@ -115,7 +131,34 @@ function setupEventListeners() {
         if (e.target === modal) hideModal();
         if (e.target === msgModal) msgModal.classList.add('hidden');
         if (e.target === confirmModal) confirmModal.classList.add('hidden');
+
+        // Close mobile menu if clicking outside
+        const mobileMenu = document.getElementById('mobile-menu');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        if (mobileMenu && mobileMenu.classList.contains('active')) {
+            if (!mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        }
     });
+
+    // Hamburger Menu Toggle
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (hamburgerBtn && mobileMenu) {
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent immediate close
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close menu when a link is clicked
+        const mobileLinks = mobileMenu.querySelectorAll('li');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+            });
+        });
+    }
 
     // Add Product Buttons
     document.querySelectorAll('.add-prod-btn').forEach(btn => {
@@ -278,7 +321,9 @@ function formatDateHeader(dateString) {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `Menú para la fecha: ${day}/${month}/${year}`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
 function renderPendingMenus() {
@@ -300,18 +345,15 @@ function renderPendingMenus() {
             <div class="history-items">
                 ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
             </div>
-            <div class="history-total">
-                Total: ${parseFloat(menu.total || 0).toFixed(2)}€
-                <div style="font-size: 0.8rem; font-weight: normal; color: #666;">
-                    (${menu.perPerson ? parseFloat(menu.perPerson).toFixed(2) : '0.00'}€ / pers)
+            <div class="history-footer-row">
+                <div class="history-total-compact">
+                    Total: ${parseFloat(menu.total || 0).toFixed(2)}€
+                    <span>(${menu.perPerson ? parseFloat(menu.perPerson).toFixed(2) : '0.00'}€/p)</span>
                 </div>
-            </div>
-            <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
-                Mesa: ${menu.table || 'N/A'}
-            </div>
-            <div style="margin-top: 1rem; display: flex; gap: 10px;">
-                <button class="btn-secondary" onclick="loadMenu('${menu.id}', true)">Cargar/Editar</button>
-                <button class="btn-danger" onclick="deletePending('${menu.id}')">Borrar</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-edit-compact" onclick="loadMenu('${menu.id}', true)">Editar</button>
+                    <button class="btn-delete-compact" onclick="deletePending('${menu.id}')">Eliminar</button>
+                </div>
             </div>
         `;
         pendingContainer.appendChild(card);
@@ -337,16 +379,13 @@ function renderHistory() {
             <div class="history-items">
                 ${(menu.itemsNames || (menu.items ? menu.items.map(i => i.name) : [])).join(', ') || 'Sin detalles'}
             </div>
-            <div class="history-total">
-                ${parseFloat(menu.total || 0).toFixed(2)}€
-                <div style="font-size: 0.8rem; font-weight: normal; color: #666;">
-                    (${menu.perPerson ? parseFloat(menu.perPerson).toFixed(2) : '0.00'}€ / pers)
+            <div class="history-footer-row">
+                <div class="history-total-compact">
+                    Total: ${parseFloat(menu.total || 0).toFixed(2)}€
+                    <span>(${menu.perPerson ? parseFloat(menu.perPerson).toFixed(2) : '0.00'}€/p)</span>
                 </div>
+                <button class="btn-delete-compact" onclick="deleteHistory('${menu.id}')">Eliminar</button>
             </div>
-            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #888;">
-                Mesa: ${menu.table || 'N/A'}
-            </div>
-            <button class="btn-delete-history" onclick="deleteHistory('${menu.id}')">Eliminar</button>
         `;
         historyContainer.appendChild(card);
     });
@@ -393,6 +432,7 @@ function calculateTotal() {
                 <div class="selected-item">
                     <span>${p.name}</span>
                     <span class="selected-item-price">${parseFloat(p.price).toFixed(2)}€</span>
+                    <button class="btn-remove-item" onclick="removeFromSelection('${p.id}')">×</button>
                 </div>
             `).join('');
         } else {
@@ -405,39 +445,31 @@ function calculateTotal() {
 
 function validateInputs() {
     let isValid = true;
-    const name = menuNameInput.value.trim();
-    const table = menuTableInput.value.trim();
+    const name = menuNameInput ? menuNameInput.value.trim() : '';
 
     if (!name) {
-        menuNameInput.classList.add('input-error');
+        if (menuNameInput) menuNameInput.classList.add('input-error');
         isValid = false;
     } else {
-        menuNameInput.classList.remove('input-error');
-    }
-
-    if (!table) {
-        menuTableInput.classList.add('input-error');
-        isValid = false;
-    } else {
-        menuTableInput.classList.remove('input-error');
+        if (menuNameInput) menuNameInput.classList.remove('input-error');
     }
 
     // Clear error on input
-    menuNameInput.addEventListener('input', () => menuNameInput.classList.remove('input-error'));
-    menuTableInput.addEventListener('input', () => menuTableInput.classList.remove('input-error'));
+    if (menuNameInput) {
+        menuNameInput.addEventListener('input', () => menuNameInput.classList.remove('input-error'), { once: true });
+    }
 
     return isValid;
 }
 
 function saveToPending() {
     if (!validateInputs()) {
-        showMessageModal('Faltan datos', 'Por favor indica Nombre y Mesa.');
+        showMessageModal('Faltan datos', 'Por favor indica el Nombre del Menú.');
         return;
     }
 
-    const name = menuNameInput.value.trim();
-    const table = menuTableInput.value.trim();
-    const dateVal = menuDateInput.value;
+    const name = menuNameInput ? menuNameInput.value.trim() : '';
+    const dateVal = menuDateInput ? menuDateInput.value : '';
     if (currentSelection.size === 0) {
         showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
         return;
@@ -448,7 +480,7 @@ function saveToPending() {
 
     const menuData = {
         name: name,
-        table: table,
+        table: '', // Combined with name now
         date: dateVal || new Date().toISOString(),
         items: Array.from(currentSelection),
         itemsNames: selectedItems.map(p => p.name),
@@ -460,12 +492,14 @@ function saveToPending() {
         db.ref(`pending_menus/${currentPendingId}`).update(menuData)
             .then(() => {
                 showMessageModal('Éxito', 'Menú actualizado en pendientes.');
+                collapseFooter();
                 resetSelection();
             });
     } else {
         db.ref('pending_menus').push(menuData)
             .then(() => {
                 showMessageModal('Éxito', 'Menú guardado en pendientes.');
+                collapseFooter();
                 resetSelection();
             })
             .catch(err => console.error(err));
@@ -474,13 +508,12 @@ function saveToPending() {
 
 function finalizeMenu() {
     if (!validateInputs()) {
-        showMessageModal('Faltan datos', 'Por favor indica Nombre y Mesa.');
+        showMessageModal('Faltan datos', 'Por favor indica el Nombre del Menú.');
         return;
     }
 
-    const name = menuNameInput.value.trim();
-    const table = menuTableInput.value.trim();
-    const dateVal = menuDateInput.value;
+    const name = menuNameInput ? menuNameInput.value.trim() : '';
+    const dateVal = menuDateInput ? menuDateInput.value : '';
 
     if (currentSelection.size === 0) {
         showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
@@ -492,7 +525,7 @@ function finalizeMenu() {
 
     const menuData = {
         name: name || `Mesa ${new Date().toLocaleTimeString()}`,
-        table: table,
+        table: '', // Combined with name
         date: dateVal || new Date().toISOString(),
         items: Array.from(currentSelection),
         itemsNames: selectedItems.map(p => p.name),
@@ -513,15 +546,24 @@ function finalizeMenu() {
                 db.ref(`pending_menus/${currentPendingId}`).remove();
             }
             showMessageModal('Éxito', 'Menú finalizado y guardado en historial.');
+            collapseFooter();
             resetSelection();
         })
         .catch(err => console.error(err));
 }
 
+// Collapse mobile footer
+function collapseFooter() {
+    if (calcPanel) {
+        calcPanel.classList.remove('expanded');
+        const btnToggleDetail = document.getElementById('btn-toggle-detail');
+        if (btnToggleDetail) btnToggleDetail.textContent = 'Ver Detalle';
+    }
+}
+
 function resetSelection() {
     currentSelection.clear();
     if (menuNameInput) menuNameInput.value = '';
-    if (menuTableInput) menuTableInput.value = '';
     // Reset date to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -552,7 +594,6 @@ function loadMenu(menuId, isPending) {
     if (menu) {
         currentSelection = new Set(menu.items);
         if (menuNameInput) menuNameInput.value = menu.name || '';
-        if (menuTableInput) menuTableInput.value = menu.table || '';
         // Handle date format for input
         if (menu.date && menuDateInput) {
             const d = new Date(menu.date);
@@ -652,4 +693,14 @@ window.openProductModal = openProductModal;
 window.loadMenu = loadMenu;
 window.deletePending = deletePending;
 window.deleteHistory = deleteHistory;
-window.toggleProductSelection = toggleProductSelection; // Expose to global
+window.toggleProductSelection = toggleProductSelection;
+window.removeFromSelection = removeFromSelection;
+
+// Function to remove product from selection (for × button)
+function removeFromSelection(prodId) {
+    if (currentSelection.has(prodId)) {
+        currentSelection.delete(prodId);
+        renderProducts(document.getElementById('sort-products').value);
+        calculateTotal();
+    }
+}

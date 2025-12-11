@@ -20,26 +20,37 @@
 <body>
     <div class="app-container">
         <!-- Sidebar / Navigation -->
+        <!-- Sidebar / Navigation -->
         <nav class="sidebar">
             <div class="brand">
-                <h1>Casa de<br>Andalucía</h1>
-                <p>Gestión de Menús</p>
+                <div class="brand-left">
+                    <img src="static/logo.png" alt="Logo" class="brand-logo">
+                </div>
+                <div class="brand-center">
+                    <h2>Casa de Andalucía</h2>
+                </div>
+                <div class="brand-right">
+                    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
             </div>
 
-            <ul class="nav-links">
-                <li class="active" data-view="view-main-menu">
-                    <span class="icon">🍽️</span> Menú Principal
-                </li>
-                <li data-view="view-pending">
-                    <span class="icon">⏳</span> Menús Pendientes
-                </li>
-                <li data-view="view-history">
-                    <span class="icon">📜</span> Historial
-                </li>
-            </ul>
-
-            <div class="nav-footer">
-                <div class="andalusian-pattern"></div>
+            <div class="mobile-menu" id="mobile-menu">
+                <ul class="nav-links">
+                    <li class="active" data-view="view-main-menu">
+                        <span class="icon">🍽️</span> Menú Principal
+                    </li>
+                    <li data-view="view-pending">
+                        <span class="icon">⏳</span> Menús Pendientes
+                    </li>
+                    <li data-view="view-history">
+                        <span class="icon">📜</span> Historial
+                    </li>
+                </ul>
+                <div class="nav-footer"></div>
             </div>
         </nav>
         <!-- End Sidebar -->
@@ -49,19 +60,19 @@
 
             <!-- VIEW: MAIN MENU (Product Selection) -->
             <div id="view-main-menu" class="view-section active">
-                <header class="view-header">
-                    <h2>Nuevo Menú</h2>
-                    <div class="header-actions">
+                <header class="view-header-v2">
+                    <div class="header-top-row">
                         <div class="sort-control">
                             <label>Ordenar por:</label>
                             <select id="sort-products">
-                                <option value="name">Alfabético (A-Z)</option>
-                                <option value="price-asc">Precio (Menor a Mayor)</option>
-                                <option value="price-desc">Precio (Mayor a Menor)</option>
+                                <option value="name">Alfabético</option>
+                                <option value="price-asc">Precio (Menor)</option>
+                                <option value="price-desc">Precio (Mayor)</option>
                                 <option value="popularity">Más Usados</option>
                             </select>
                         </div>
                     </div>
+                    <h2>Nuevo Menú</h2>
                 </header>
 
                 <div class="menu-workspace">
@@ -110,50 +121,49 @@
                     <div class="calculation-panel" id="calc-panel">
                         <!-- Mobile Toggle Header -->
                         <div class="mobile-calc-toggle" id="mobile-calc-toggle">
+                            <button class="btn-detail-view" id="btn-toggle-detail">Ver Detalle</button>
                             <span class="mobile-total-label">Total: <span id="mobile-total-preview">0.00€</span></span>
-                            <button class="btn-detail-view">Ver Detalle</button>
                         </div>
                         <div class="panel-card" id="calc-content">
-                            <h3>Resumen Actual</h3>
+                            <!-- Input Nombre -->
+                            <div class="input-row-full">
+                                <input type="text" id="menu-name-input" placeholder="Nombre del Menú"
+                                    class="input-full">
+                            </div>
 
                             <!-- Selected Products List -->
+                            <h3>Resumen del Pedido</h3>
                             <div id="selected-products-list" class="selected-list"></div>
 
+                            <!-- Breakdown -->
                             <div class="calc-details">
                                 <div class="calc-row">
-                                    <span>Comida Seleccionada:</span>
-                                    <span id="calc-food">0.00€</span>
+                                    <span>Comida:</span>
+                                    <span class="price-green" id="calc-food">0.00€</span>
                                 </div>
-                                <div class="calc-row fixed-item" title="7.50€ x 4 personas">
-                                    <span>Bebida (4 pers.):</span>
-                                    <span id="calc-drinks">30.00€</span>
+                                <div class="calc-row">
+                                    <span>Bebida (4p):</span>
+                                    <span class="price-green" id="calc-drinks">30.00€</span>
                                 </div>
-                                <div class="calc-row fixed-item" title="Precio fijo">
+                                <div class="calc-row">
+                                    <span>Por persona:</span>
+                                    <span class="price-green" id="calc-per-person">8.10€</span>
+                                </div>
+                                <div class="calc-row">
                                     <span>Pan:</span>
-                                    <span id="calc-pan">2.40€</span>
-                                </div>
-                                <div class="divider"></div>
-                                <div class="calc-row total">
-                                    <span>Total:</span>
-                                    <span id="calc-total">32.40€</span>
-                                </div>
-                                <div class="calc-row per-person">
-                                    <span>Por persona (4):</span>
-                                    <span id="calc-per-person">8.10€</span>
+                                    <span class="price-green" id="calc-pan">2.40€</span>
                                 </div>
                             </div>
 
+                            <!-- Calendario y Botones al final -->
                             <div class="panel-actions">
-                                <div class="input-group-row">
-                                    <input type="text" id="menu-name-input" placeholder="Nombre (ej: Familia Pérez)"
-                                        class="input-full">
-                                    <input type="text" id="menu-table-input" placeholder="Mesa" class="input-short">
-                                </div>
-                                <div class="input-group-row">
+                                <div class="input-row-full">
                                     <input type="datetime-local" id="menu-date-input" class="input-full">
                                 </div>
-                                <button id="btn-save-pending" class="btn-secondary">Guardar en Pendientes</button>
-                                <button id="btn-finalize" class="btn-primary">Finalizar y Guardar</button>
+                                <div class="btn-row-horizontal">
+                                    <button id="btn-save-pending" class="btn-secondary">Guardar</button>
+                                    <button id="btn-finalize" class="btn-primary">Finalizar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
