@@ -38,7 +38,7 @@ const confirmModal = document.getElementById('confirm-modal');
 
 // State
 let products = [];
-let currentSelection = new Set(); // Stores product IDs
+let currentSelection = {}; // Stores product IDs -> Quantity
 let pendingMenus = [];
 let historyMenus = [];
 let currentPendingId = null; // Track if we are editing a pending menu
@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     if (menuDateInput) menuDateInput.value = now.toISOString().slice(0, 16);
 
+    // Initial total calculation (Base price)
+    calculateTotal();
+
     // Hide Header on Scroll (Mobile) - Hide on UP, show on DOWN
     const sidebar = document.querySelector('.sidebar');
     let lastScrollTop = 0;
@@ -68,14 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', () => {
         if (window.innerWidth > 768) return; // Only on mobile
 
-        // Support standard window scroll
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-        if (scrollTop > lastScrollTop && scrollTop > 50) {
-            // Scrolling DOWN - hide header
+        if (scrollTop < lastScrollTop && scrollTop > 50) {
+            // Scrolling UP - hide header
             sidebar.classList.add('header-hidden');
-        } else if (scrollTop < lastScrollTop) {
-            // Scrolling UP - show header
+        } else if (scrollTop > lastScrollTop || scrollTop <= 50) {
+            // Scrolling DOWN or at top - show header
             sidebar.classList.remove('header-hidden');
         }
 
@@ -288,7 +290,7 @@ function renderProducts(sortBy = 'name') {
     Object.values(containers).forEach(el => { if (el) el.innerHTML = ''; });
 
     sortedProducts.forEach(prod => {
-        const isSelected = currentSelection.has(prod.id);
+        const isSelected = !!currentSelection[prod.id];
         const card = document.createElement('div');
         card.className = `product-card ${isSelected ? 'selected' : ''}`;
 
@@ -391,20 +393,32 @@ function renderHistory() {
 // --- Logic Actions ---
 
 function toggleProductSelection(prodId) {
-    if (currentSelection.has(prodId)) {
-        currentSelection.delete(prodId);
+    if (currentSelection[prodId]) {
+        delete currentSelection[prodId];
     } else {
-        currentSelection.add(prodId);
+        currentSelection[prodId] = 1;
     }
     renderProducts(document.getElementById('sort-products').value); // Re-render to show selection
     calculateTotal();
 }
 
+function updateQuantity(prodId, qty) {
+    if (currentSelection[prodId]) {
+        currentSelection[prodId] = parseInt(qty, 10);
+        calculateTotal();
+    }
+}
+
 function calculateTotal() {
     let foodTotal = 0;
-    currentSelection.forEach(id => {
+    const selectedIds = Object.keys(currentSelection);
+
+    selectedIds.forEach(id => {
         const prod = products.find(p => p.id === id);
-        if (prod) foodTotal += parseFloat(prod.price);
+        if (prod) {
+            const qty = currentSelection[id];
+            foodTotal += parseFloat(prod.price) * qty;
+        }
     });
 
     const drinksTotal = PRICE_DRINK_PER_PERSON * PERSONS;
@@ -423,15 +437,33 @@ function calculateTotal() {
     // Render Selected List (Mobile/Desktop)
     const listContainer = document.getElementById('selected-products-list');
     if (listContainer) {
-        const selectedItems = products.filter(p => currentSelection.has(p.id));
-        if (selectedItems.length > 0) {
-            listContainer.innerHTML = selectedItems.map(p => `
-                <div class="selected-item">
-                    <span>${p.name}</span>
-                    <span class="selected-item-price">${parseFloat(p.price).toFixed(2)}€</span>
-                    <button class="btn-remove-item" onclick="removeFromSelection('${p.id}')">×</button>
+        if (selectedIds.length > 0) {
+            listContainer.innerHTML = selectedIds.map(id => {
+                const prod = products.find(p => p.id === id);
+                if (!prod) return '';
+                const qty = currentSelection[id];
+                const lineTotal = (parseFloat(prod.price) * qty).toFixed(2);
+
+                // Build options for native select
+                let optionsHtml = '';
+                for (let i = 1; i <= 10; i++) {
+                    optionsHtml += `<option value="${i}" ${i === qty ? 'selected' : ''}>${i}</option>`;
+                }
+
+                /* racion-selector: created/updated by Antigravity - DO NOT MODIFY LOGIC */
+                return `
+                <div class="selected-item-row" data-base-price="${prod.price}">
+                    <span class="item-name">${prod.name}</span>
+                    
+                    <select class="racion-selector" aria-label="Raciones" data-role="racion" onchange="updateQuantity('${id}', this.value)">
+                        ${optionsHtml}
+                    </select>
+
+                    <span class="item-price">${lineTotal}€</span>
+                    <button class="btn-remove-item" onclick="removeFromSelection('${prod.id}')">×</button>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         } else {
             listContainer.innerHTML = '<div style="text-align:center; color:#999; font-size:0.9rem;">Ningún plato seleccionado</div>';
         }
@@ -467,20 +499,27 @@ function saveToPending() {
 
     const name = menuNameInput ? menuNameInput.value.trim() : '';
     const dateVal = menuDateInput ? menuDateInput.value : '';
-    if (currentSelection.size === 0) {
+    if (Object.keys(currentSelection).length === 0) {
         showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
         return;
     }
 
-    const selectedItems = products.filter(p => currentSelection.has(p.id));
+    const selectedIds = Object.keys(currentSelection);
+    const selectedItemsNames = [];
+    selectedIds.forEach(id => {
+        const prod = products.find(p => p.id === id);
+        if (prod) selectedItemsNames.push(prod.name);
+    });
+
     const totals = calculateTotal(); // Ensure we have fresh totals
 
     const menuData = {
         name: name,
         table: '', // Combined with name now
         date: dateVal || new Date().toISOString(),
-        items: Array.from(currentSelection),
-        itemsNames: selectedItems.map(p => p.name),
+        items: selectedIds,
+        itemsNames: selectedItemsNames,
+        quantities: currentSelection, // Store quantities
         total: totals.total.toFixed(2),
         perPerson: totals.perPerson.toFixed(2)
     };
@@ -512,28 +551,38 @@ function finalizeMenu() {
     const name = menuNameInput ? menuNameInput.value.trim() : '';
     const dateVal = menuDateInput ? menuDateInput.value : '';
 
-    if (currentSelection.size === 0) {
+    if (Object.keys(currentSelection).length === 0) {
         showMessageModal('Menú vacío', 'Selecciona al menos un plato.');
         return;
     }
 
-    const selectedItems = products.filter(p => currentSelection.has(p.id));
+    const selectedIds = Object.keys(currentSelection);
+    const selectedItemsNames = [];
+    selectedIds.forEach(id => {
+        const prod = products.find(p => p.id === id);
+        if (prod) selectedItemsNames.push(prod.name);
+    });
+
     const totals = calculateTotal(); // Ensure we have fresh totals
 
     const menuData = {
         name: name || `Mesa ${new Date().toLocaleTimeString()}`,
         table: '', // Combined with name
         date: dateVal || new Date().toISOString(),
-        items: Array.from(currentSelection),
-        itemsNames: selectedItems.map(p => p.name),
+        items: selectedIds,
+        itemsNames: selectedItemsNames,
+        quantities: currentSelection,
         total: totals.total.toFixed(2),
         perPerson: totals.perPerson.toFixed(2)
     };
 
     // Update usage counts
-    selectedItems.forEach(prod => {
-        const newCount = (prod.usageCount || 0) + 1;
-        db.ref(`products/${prod.id}`).update({ usageCount: newCount });
+    selectedIds.forEach(id => {
+        const prod = products.find(p => p.id === id);
+        if (prod) {
+            const newCount = (prod.usageCount || 0) + 1;
+            db.ref(`products/${prod.id}`).update({ usageCount: newCount });
+        }
     });
 
     db.ref('history').push(menuData)
@@ -559,7 +608,7 @@ function collapseFooter() {
 }
 
 function resetSelection() {
-    currentSelection.clear();
+    currentSelection = {};
     if (menuNameInput) menuNameInput.value = '';
     // Reset date to now
     const now = new Date();
@@ -589,7 +638,14 @@ function showConfirmModal(title, message, callback) {
 function loadMenu(menuId, isPending) {
     const menu = isPending ? pendingMenus.find(m => m.id === menuId) : null;
     if (menu) {
-        currentSelection = new Set(menu.items);
+        currentSelection = {};
+        if (menu.quantities) {
+            currentSelection = { ...menu.quantities };
+        } else if (Array.isArray(menu.items)) {
+            menu.items.forEach(id => {
+                currentSelection[id] = 1;
+            });
+        }
         if (menuNameInput) menuNameInput.value = menu.name || '';
         // Handle date format for input
         if (menu.date && menuDateInput) {
@@ -695,8 +751,8 @@ window.removeFromSelection = removeFromSelection;
 
 // Function to remove product from selection (for × button)
 function removeFromSelection(prodId) {
-    if (currentSelection.has(prodId)) {
-        currentSelection.delete(prodId);
+    if (currentSelection[prodId]) {
+        delete currentSelection[prodId];
         renderProducts(document.getElementById('sort-products').value);
         calculateTotal();
     }

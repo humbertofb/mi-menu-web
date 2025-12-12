@@ -31,9 +31,12 @@ body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--color-bg-light);
     color: var(--color-text-dark);
-    height: 100vh;
-    overflow: hidden;
-    /* Prevent body scroll */
+    height: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 h1,
@@ -74,6 +77,130 @@ h3 {
     width: 110px;
     height: 110px;
     object-fit: contain;
+}
+
+/* Quantity Selector Refinement (Strict + Vertical Alignment) */
+.selected-item-row {
+    display: grid;
+    /* Fixed columns ensure the selector is always at the same horizontal position (vertically aligned) */
+    /* Name (fluid) | Selector (fixed slot) | Price (fixed slot) | Remove (fixed slot) */
+    grid-template-columns: 1fr 76px 90px 30px;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    width: 100%;
+    gap: 4px;
+}
+
+.item-name {
+    /* No flex needed in grid */
+    font-size: 0.9rem;
+    color: var(--color-text-dark);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Margin right not needed as grid gap handles it, but good for safety */
+    margin-right: 4px;
+}
+
+/* Selector centered between name and price logic handled by flex margins/justify if needed, 
+   but user asked for "exactly centered". Flex 'row' with auto margins on selector? 
+   Or just standard flow. User said "margin-left/margin-right suficientes (8–10px)". */
+.racion-selector {
+    /* Dimensions - Chip Style (22px height) */
+    height: 22px;
+    width: 38px;
+    /* Narrow chip width */
+    max-width: 100%;
+
+    /* Center in Grid Cell + SHIFT RIGHT 10px MORE (Total 25px) */
+    justify-self: center;
+    margin: 0;
+    margin-left: 25px;
+    /* Shift right (offsetting center) - user asked for 10px EXTRA */
+
+    /* Styling */
+    background-color: #FFFFFF;
+    border: 1px solid rgba(31, 77, 64, 0.8);
+    /* Slightly thinner border for small size */
+    border-radius: 12px;
+    /* Chip radius */
+    font-family: inherit;
+    font-size: 0.8rem;
+    /* Smaller font */
+    color: var(--color-text-dark);
+    cursor: pointer;
+
+    /* RE-APPLY CUSTOM APPEARANCE (User requested "Don't remove style") */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* Custom Arrow - Adjusted for small size */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231F4D40%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    /* Tighter arrow position */
+    background-size: 7px;
+    /* Smaller arrow */
+    padding-right: 14px;
+    /* Less padding */
+    padding-left: 4px;
+
+    /* Text center */
+    text-align: center;
+    text-align-last: center;
+}
+
+/* Mobile max width adjustment */
+@media (max-width: 480px) {
+
+    /* Adjust grid columns for mobile to be narrower */
+    .selected-item-row {
+        grid-template-columns: 1fr 56px 80px 30px;
+        /* Narrower selector and price columns */
+        padding: 0.3rem 0;
+        /* Reduced padding for compact mobile view (3 items visible) */
+    }
+
+    /* Increase list height slightly for mobile to ensure 3 items fit */
+    .selected-list {
+        max-height: 125px;
+        /* Fits 3 x ~36px rows */
+    }
+
+    /* Selector fills the 56px column */
+    .racion-selector {
+        /* No specific width override needed as it is 100% of container */
+    }
+}
+
+.item-price {
+    min-width: 90px;
+    /* Fixed width to prevent shifting */
+    text-align: right;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-green-dark);
+}
+
+.btn-remove-item {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px;
+    width: 30px;
+    /* Fixed width area */
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-remove-item:hover {
+    color: var(--color-danger);
 }
 
 /* Sort Control */
@@ -156,7 +283,6 @@ h3 {
     /* Clean background, no texture */
     overflow-y: auto;
     height: 100vh;
-    -webkit-overflow-scrolling: touch;
 }
 
 .view-section {
@@ -759,12 +885,6 @@ input[type="datetime-local"] {
 /* Responsive */
 /* Responsive */
 @media (max-width: 768px) {
-    body {
-        height: auto;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
     .app-container {
         flex-direction: column;
         height: auto;
@@ -788,10 +908,6 @@ input[type="datetime-local"] {
         /* Increased height for breathing room */
         background-color: var(--color-white);
         transition: transform 0.3s ease;
-    }
-
-    .header-hidden {
-        transform: translateY(-100%);
     }
 
     .brand {
@@ -900,14 +1016,12 @@ input[type="datetime-local"] {
     }
 
     /* Main Content Spacing - Increased for header */
-    /* Main Content Spacing - Increased for header */
     .main-content {
         padding: 1rem;
         padding-top: 100px;
         /* More space for header + filter bar */
         padding-bottom: 100px;
         overflow: visible;
-        /* Let body scroll */
         height: auto;
     }
 
