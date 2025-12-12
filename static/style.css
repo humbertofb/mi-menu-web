@@ -171,9 +171,7 @@ h3 {
     }
 
     /* Selector fills the 56px column */
-    .racion-selector {
-        /* No specific width override needed as it is 100% of container */
-    }
+    /* Selector fills the 56px column - No specific width override needed */
 }
 
 .item-price {
@@ -1505,4 +1503,9 @@ input[type="datetime-local"] {
 
 .btn-edit-compact:hover {
     background-color: #004832;
+}
+
+/* Header Hidden State */
+.sidebar.header-hidden {
+    transform: translateY(-100%);
 }

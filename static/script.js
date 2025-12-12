@@ -65,24 +65,43 @@ document.addEventListener('DOMContentLoaded', () => {
     calculateTotal();
 
     // Hide Header on Scroll (Mobile) - Hide on UP, show on DOWN
+    // Hide Header on Scroll (Mobile & Desktop)
     const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
     let lastScrollTop = 0;
 
-    window.addEventListener('scroll', () => {
-        if (window.innerWidth > 768) return; // Only on mobile
+    function handleScroll(currentScrollTop) {
+        // Debounce small movements
+        if (Math.abs(currentScrollTop - lastScrollTop) < 5) return;
 
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        if (scrollTop < lastScrollTop && scrollTop > 50) {
-            // Scrolling UP - hide header
+        if (currentScrollTop > lastScrollTop && currentScrollTop > 50) {
+            // Scrolling DOWN (getting further from top) -> Hide Header
             sidebar.classList.add('header-hidden');
-        } else if (scrollTop > lastScrollTop || scrollTop <= 50) {
-            // Scrolling DOWN or at top - show header
+        } else if (currentScrollTop < lastScrollTop) {
+            // Scrolling UP (getting closer to top) -> Show Header
             sidebar.classList.remove('header-hidden');
         }
 
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        lastScrollTop = Math.max(0, currentScrollTop);
+    }
+
+    // Scroll listener for Window (Mobile)
+    window.addEventListener('scroll', () => {
+        // On mobile, the window/body scrolls
+        if (window.innerWidth <= 768) {
+            handleScroll(window.pageYOffset || document.documentElement.scrollTop);
+        }
     }, { passive: true });
+
+    // Scroll listener for Main Content (Desktop)
+    if (mainContent) {
+        mainContent.addEventListener('scroll', () => {
+            // On desktop, the main-content div scrolls
+            if (window.innerWidth > 768) {
+                handleScroll(mainContent.scrollTop);
+            }
+        }, { passive: true });
+    }
 });
 
 function setupEventListeners() {
